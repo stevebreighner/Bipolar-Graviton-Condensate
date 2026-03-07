@@ -120,6 +120,13 @@ const state = {
     currentX: 0,
     currentY: 0,
   },
+  viewportPan: {
+    active: false,
+    startClientX: 0,
+    startClientY: 0,
+    startScrollLeft: 0,
+    startScrollTop: 0,
+  },
   layout: new Map(),
   subtreeWidths: new Map(),
   undoHistory: [],
@@ -135,6 +142,7 @@ const state = {
 
 const el = {
   svg: document.getElementById("treeSvg"),
+  canvasContainer: document.getElementById("canvasContainer"),
   appTitle: document.getElementById("appTitle"),
   appSubtitle: document.getElementById("appSubtitle"),
   selectedLabel: document.getElementById("selectedLabel"),
@@ -1752,11 +1760,46 @@ function downloadBlob(blob, filename) {
 }
 
 function fitView() {
-  const container = document.getElementById("canvasContainer");
+  const container = el.canvasContainer;
   container.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 }
 
+function shouldStartViewportPan(event) {
+  if (!el.canvasContainer || event.button !== 0 || event.shiftKey || state.inlineEdit) return false;
+  const target = event.target;
+  if (!target || !target.closest) return false;
+  if (!target.closest("#treeSvg")) return false;
+  return !target.closest(".node-group, [data-inline-editor='true']");
+}
+
+function startViewportPan(event) {
+  if (!shouldStartViewportPan(event)) return;
+  state.viewportPan.active = true;
+  state.viewportPan.startClientX = event.clientX;
+  state.viewportPan.startClientY = event.clientY;
+  state.viewportPan.startScrollLeft = el.canvasContainer.scrollLeft;
+  state.viewportPan.startScrollTop = el.canvasContainer.scrollTop;
+  el.canvasContainer.classList.add("is-panning");
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+function moveViewportPan(clientX, clientY) {
+  if (!state.viewportPan.active || !el.canvasContainer) return;
+  const dx = clientX - state.viewportPan.startClientX;
+  const dy = clientY - state.viewportPan.startClientY;
+  el.canvasContainer.scrollLeft = state.viewportPan.startScrollLeft - dx;
+  el.canvasContainer.scrollTop = state.viewportPan.startScrollTop - dy;
+}
+
+function endViewportPan() {
+  if (!state.viewportPan.active || !el.canvasContainer) return;
+  state.viewportPan.active = false;
+  el.canvasContainer.classList.remove("is-panning");
+}
+
 function startDragSelection(event) {
+  if (state.viewportPan.active) return;
   if (state.inlineEdit) return;
   if (event.button !== 0 || !event.shiftKey) return;
   const point = clientToSvgPoint(event.clientX, event.clientY);
@@ -1901,10 +1944,17 @@ function wireEvents() {
     window.addEventListener("pointermove", (event) => moveEditorDrag(event.clientX, event.clientY));
     window.addEventListener("pointerup", endEditorDrag);
     window.addEventListener("pointercancel", endEditorDrag);
+    el.canvasContainer.addEventListener("pointerdown", startViewportPan, true);
+    window.addEventListener("pointermove", (event) => moveViewportPan(event.clientX, event.clientY));
+    window.addEventListener("pointerup", endViewportPan);
+    window.addEventListener("pointercancel", endViewportPan);
   } else {
     el.editorHead.addEventListener("mousedown", startEditorDrag);
     window.addEventListener("mousemove", (event) => moveEditorDrag(event.clientX, event.clientY));
     window.addEventListener("mouseup", endEditorDrag);
+    el.canvasContainer.addEventListener("mousedown", startViewportPan, true);
+    window.addEventListener("mousemove", (event) => moveViewportPan(event.clientX, event.clientY));
+    window.addEventListener("mouseup", endViewportPan);
   }
 
   if (window.PointerEvent) {

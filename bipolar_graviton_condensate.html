@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bipolar Graviton Condensate (Toy Model)</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; max-width: 980px; }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    label { display: flex; align-items: center; gap: 6px; }
+    input { width: 90px; }
+    #plot { width: 100%; height: 520px; }
+    #velocityPlot { width: 100%; height: 470px; margin-top: 16px; }
+    #result { margin-top: 10px; font-weight: 600; }
+    .explain {
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #fafafa;
+      line-height: 1.5;
+    }
+    .explain h3 { margin-top: 0; }
+    .notes {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #f7f9ff;
+      line-height: 1.5;
+    }
+    .notes h3 { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <h2>Bipolar Graviton Condensate Stability (Normalized Units)</h2>
+
+  <div class="controls">
+    <label>A (repulsion): <input id="A" type="number" step="0.1" value="1.0" min="0.001"></label>
+    <label>B (dipole binding): <input id="B" type="number" step="0.1" value="1.0" min="0.001"></label>
+    <button id="runBtn">Simulate</button>
+  </div>
+
+  <div id="plot"></div>
+  <div id="velocityPlot"></div>
+  <div id="result"></div>
+
+  <section class="explain">
+    <h3>What The Equation Does</h3>
+    <p>
+      The model defines
+      <code>V(r) = A/r^12 - B/r^3 - 1/r</code>
+      and computes the force from
+      <code>F(r) = -dV/dr = 12A/r^13 - 3B/r^4 - 1/r^2</code>.
+    </p>
+    <ul>
+      <li><strong>A / r<sup>12</sup></strong>: short-range support term. If <code>A &gt; 0</code>, it grows fastest at small <code>r</code> and can prevent collapse to <code>r = 0</code>.</li>
+      <li><strong>-B / r<sup>3</sup></strong>: attractive bipolar binding term.</li>
+      <li><strong>-1 / r</strong>: gravity term in normalized units with <code>G = 1</code> and <code>M = 1</code>.</li>
+    </ul>
+    <p>
+      The red point is the computed <strong>stable radius</strong> <code>r*</code>, found where
+      <code>F(r) = 0</code> and the equilibrium is stable. If <code>A = 0</code> with the current
+      attractive terms, no finite stable radius appears in this static model.
+    </p>
+    <p>
+      The second chart plots
+      <code>v(r) = sqrt(r * |F(r)|)</code>.
+      The blue curve uses the full bipolar force, while the dashed gray curve uses the
+      Schwarzschild/Newtonian baseline <code>F(r) = -1/r^2</code>. Their difference isolates the
+      effect of the <code>1/r^3</code> binding term away from the pure gravity case.
+    </p>
+  </section>
+
+  <section class="notes">
+    <h3>Working Notes (From This Discussion)</h3>
+    <ul>
+      <li>This app is a toy model: it shows what follows if we assume <code>V(r) = A/r^12 - B/r^3 - 1/r</code>.</li>
+      <li>The stable radius <code>r*</code> is the center-to-center separation where net radial force is zero and locally stable.</li>
+      <li>The dipole term <code>-B/r^3</code> is attractive; by itself (with gravity) it does not create a finite stable radius.</li>
+      <li>The short-range term <code>+A/r^12</code> is an added regularization/support term that prevents collapse to <code>r=0</code> in this model.</li>
+      <li>So this demonstrates model consistency, not experimental proof of a real graviton condensate.</li>
+      <li>Schwarzschild baseline here means gravity-only behavior; setting <code>A=0</code> and <code>B=0</code> recovers that baseline potential.</li>
+      <li>Open theory question to ponder: what physically sets the nonzero separation scale (hard core, quantum pressure, self-interaction, or another mechanism)?</li>
+      <li>Current interpretation: “the cloud can be stabilized if a short-distance support mechanism exists.”</li>
+    </ul>
+  </section>
+
+  <script>
+    const G = 1.0;
+    const M = 1.0;
+
+    function V(r, A, B) {
+      return A / (r ** 12) - B / (r ** 3) - (G * M) / r;
+    }
+
+    function F(r, A, B) {
+      return 12 * A / (r ** 13) - 3 * B / (r ** 4) - (G * M) / (r ** 2);
+    }
+
+    function FSchwarzschild(r) {
+      return -(G * M) / (r ** 2);
+    }
+
+    function d2V(r, A, B) {
+      return 156 * A / (r ** 14) - 12 * B / (r ** 5) - 2 * G * M / (r ** 3);
+    }
+
+    function orbitalVelocityFromForce(r, forceValue) {
+      return Math.sqrt(Math.max(0, r * Math.abs(forceValue)));
+    }
+
+    function bisectionRoot(func, a, b, A, B, tol = 1e-10, maxIter = 200) {
+      let fa = func(a, A, B);
+      let fb = func(b, A, B);
+      if (Math.abs(fa) < tol) return a;
+      if (Math.abs(fb) < tol) return b;
+      if (fa * fb > 0) return null;
+
+      for (let i = 0; i < maxIter; i++) {
+        const c = 0.5 * (a + b);
+        const fc = func(c, A, B);
+        if (Math.abs(fc) < tol || (b - a) < tol) return c;
+        if (fa * fc < 0) {
+          b = c; fb = fc;
+        } else {
+          a = c; fa = fc;
+        }
+      }
+      return 0.5 * (a + b);
+    }
+
+    function findStableRadius(A, B, rMin = 0.25, rMax = 10.0, samples = 20000) {
+      const roots = [];
+      const dr = (rMax - rMin) / (samples - 1);
+
+      let r1 = rMin;
+      let f1 = F(r1, A, B);
+
+      for (let i = 1; i < samples; i++) {
+        const r2 = rMin + i * dr;
+        const f2 = F(r2, A, B);
+
+        if (Number.isFinite(f1) && Number.isFinite(f2) && f1 * f2 < 0) {
+          const root = bisectionRoot(F, r1, r2, A, B);
+          if (root !== null) roots.push(root);
+        }
+        r1 = r2;
+        f1 = f2;
+      }
+
+      if (!roots.length) return null;
+
+      const stable = roots.filter(r => d2V(r, A, B) > 0);
+      if (!stable.length) return null;
+
+      stable.sort((ra, rb) => V(ra, A, B) - V(rb, A, B));
+      return stable[0];
+    }
+
+    function percentile(arr, p) {
+      const sorted = [...arr].sort((a, b) => a - b);
+      const idx = Math.max(0, Math.min(sorted.length - 1, Math.floor(p * (sorted.length - 1))));
+      return sorted[idx];
+    }
+
+    function run() {
+      const A = Number(document.getElementById("A").value);
+      const B = Number(document.getElementById("B").value);
+
+      const rStar = findStableRadius(A, B);
+      const result = document.getElementById("result");
+
+      const rVals = [];
+      const potentialVals = [];
+      const vBipolarVals = [];
+      const vSchVals = [];
+      const vDeltaVals = [];
+      const rMinPlot = 0.3;
+      const rMaxPlot = 6.0;
+      const n = 2500;
+
+      for (let i = 0; i < n; i++) {
+        const r = rMinPlot + (rMaxPlot - rMinPlot) * i / (n - 1);
+        rVals.push(r);
+        potentialVals.push(V(r, A, B));
+        const fBipolar = F(r, A, B);
+        const fSch = FSchwarzschild(r);
+        const vB = orbitalVelocityFromForce(r, fBipolar);
+        const vS = orbitalVelocityFromForce(r, fSch);
+        vBipolarVals.push(vB);
+        vSchVals.push(vS);
+        vDeltaVals.push(vB - vS);
+      }
+
+      const yLow = percentile(potentialVals, 0.02);
+      const yHigh = percentile(potentialVals, 0.98);
+      const pad = 0.15 * (yHigh - yLow || 1);
+
+      const traces = [{
+        x: rVals,
+        y: potentialVals,
+        mode: "lines",
+        name: "V(r)",
+        line: { width: 2 }
+      }];
+
+      const shapes = [];
+      if (rStar !== null) {
+        const vStar = V(rStar, A, B);
+        traces.push({
+          x: [rStar],
+          y: [vStar],
+          mode: "markers",
+          name: `Equilibrium r* = ${rStar.toFixed(4)}`,
+          marker: { size: 10, color: "crimson" }
+        });
+        shapes.push({
+          type: "line",
+          x0: rStar, x1: rStar,
+          y0: yLow - pad, y1: yHigh + pad,
+          line: { color: "crimson", dash: "dash" }
+        });
+        result.textContent = `Stable radius: r* = ${rStar.toFixed(6)}, V(r*) = ${vStar.toFixed(6)}`;
+      } else {
+        result.textContent = "No stable equilibrium found in the scan range. Try different A and B.";
+      }
+
+      Plotly.newPlot("plot", traces, {
+        title: "Potential Well and Equilibrium Point",
+        xaxis: { title: "r (normalized units)" },
+        yaxis: { title: "V(r)", range: [yLow - pad, yHigh + pad] },
+        shapes,
+        margin: { t: 50, r: 20, b: 60, l: 70 }
+      }, { responsive: true });
+
+      const velocityTraces = [
+        {
+          x: rVals,
+          y: vBipolarVals,
+          mode: "lines",
+          name: "Bipolar Condensate v(r)",
+          line: { color: "#1f77b4", width: 2.2 }
+        },
+        {
+          x: rVals,
+          y: vSchVals,
+          mode: "lines",
+          name: "Schwarzschild v(r)",
+          line: { color: "#666666", width: 2, dash: "dash" }
+        },
+        {
+          x: rVals,
+          y: vDeltaVals,
+          mode: "lines",
+          name: "Delta v = v_bipolar - v_schwarzschild",
+          yaxis: "y2",
+          line: { color: "#2ca02c", width: 1.6, dash: "dot" }
+        }
+      ];
+
+      const velocityShapes = [];
+      if (rStar !== null) {
+        const fringeStart = Math.min(rMaxPlot, rStar * 1.7);
+        velocityShapes.push({
+          type: "rect",
+          x0: fringeStart,
+          x1: rMaxPlot,
+          y0: 0,
+          y1: 1,
+          xref: "x",
+          yref: "paper",
+          fillcolor: "rgba(31, 119, 180, 0.08)",
+          line: { width: 0 }
+        });
+      }
+
+      Plotly.newPlot("velocityPlot", velocityTraces, {
+        title: "Orbital Velocity Curve: Bipolar vs Schwarzschild Baseline",
+        xaxis: { title: "r (normalized units)" },
+        yaxis: { title: "v(r) = sqrt(r * |F(r)|)" },
+        yaxis2: {
+          title: "Delta v",
+          overlaying: "y",
+          side: "right",
+          showgrid: false
+        },
+        shapes: velocityShapes,
+        annotations: rStar !== null ? [{
+          x: Math.min(rMaxPlot - 0.15, rStar * 2.15),
+          y: 0.95,
+          xref: "x",
+          yref: "paper",
+          text: "Fringe region (outer cloud)",
+          showarrow: false,
+          font: { size: 12, color: "#1f4f82" }
+        }] : [],
+        margin: { t: 50, r: 60, b: 60, l: 70 }
+      }, { responsive: true });
+    }
+
+    document.getElementById("runBtn").addEventListener("click", run);
+    run();
+  </script>
+</body>
+</html>

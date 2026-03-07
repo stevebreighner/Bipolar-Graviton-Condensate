@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bipolar Graviton Core-Shell Sketch</title>
+  <style>
+    :root {
+      --paper: #f4f0e7;
+      --ink: #16212d;
+      --muted: #5c6673;
+      --panel: rgba(255, 252, 246, 0.84);
+      --line: rgba(22, 33, 45, 0.12);
+      --teal: #198c8d;
+      --sea: #2b6cb0;
+      --amber: #d77a27;
+      --ember: #b84a2a;
+      --gold: #d0a95a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Georgia, "Palatino Linotype", "Book Antiqua", serif;
+      background:
+        linear-gradient(rgba(22, 33, 45, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(22, 33, 45, 0.04) 1px, transparent 1px),
+        radial-gradient(circle at top left, rgba(208, 169, 90, 0.24), transparent 26%),
+        radial-gradient(circle at top right, rgba(25, 140, 141, 0.18), transparent 22%),
+        linear-gradient(180deg, #fbf8f1 0%, #efe8da 100%);
+      background-size: 24px 24px, 24px 24px, auto, auto, auto;
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 28px));
+      margin: 20px auto 36px;
+      padding: 22px;
+      border: 1px solid rgba(22, 33, 45, 0.12);
+      border-radius: 24px;
+      background: rgba(255, 252, 246, 0.78);
+      box-shadow: 0 24px 80px rgba(39, 50, 62, 0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      max-width: 780px;
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 1.06rem;
+      line-height: 1.55;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1.5fr auto auto auto auto;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .slider-block,
+    .chip,
+    .toggle {
+      border: 1px solid rgba(22, 33, 45, 0.1);
+      border-radius: 16px;
+      background: var(--panel);
+    }
+
+    .slider-block {
+      padding: 12px 14px;
+    }
+
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .mono {
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--ember);
+    }
+
+    button,
+    label.toggle {
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .chip,
+    .toggle {
+      padding: 12px 14px;
+    }
+
+    .chip {
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .chip:hover {
+      transform: translateY(-1px);
+      border-color: rgba(184, 74, 42, 0.45);
+      background: rgba(255, 248, 240, 0.92);
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(22, 33, 45, 0.14);
+      background:
+        radial-gradient(circle at 50% 65%, rgba(43, 108, 176, 0.09), transparent 36%),
+        radial-gradient(circle at 24% 18%, rgba(25, 140, 141, 0.12), transparent 22%),
+        radial-gradient(circle at 78% 20%, rgba(215, 122, 39, 0.14), transparent 18%),
+        linear-gradient(180deg, rgba(251, 248, 241, 0.94), rgba(236, 229, 214, 0.96));
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .card {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(22, 33, 45, 0.1);
+      background: var(--panel);
+    }
+
+    .card h2 {
+      margin: 0 0 4px;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .big {
+      font-size: 1.5rem;
+      line-height: 1.1;
+    }
+
+    .small {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .legend {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(22, 33, 45, 0.1);
+      background: rgba(245, 241, 232, 0.92);
+      line-height: 1.55;
+    }
+
+    .legend strong {
+      color: var(--ink);
+    }
+
+    @media (max-width: 900px) {
+      .toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      main {
+        width: min(100vw - 16px, 1120px);
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .toolbar,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Bipolar Graviton Core-Shell Sketch</h1>
+    <p class="subtitle">
+      Conceptual canvas view of the model we discussed: two bipolar constituents attract at mid-range,
+      but if their shells compress or overlap, the interaction turns sharply repulsive. This is an
+      explanatory sketch, not a literal claim about measured graviton structure.
+    </p>
+
+    <section class="toolbar" aria-label="Controls">
+      <div class="slider-block">
+        <div class="slider-row">
+          <span>Center separation <span class="mono">r</span></span>
+          <span id="rValue" class="mono">1.120</span>
+        </div>
+        <input id="rRange" type="range" min="0.78" max="4.60" step="0.002" value="1.12" />
+      </div>
+      <button class="chip" type="button" data-r="3.40">Fringe</button>
+      <button class="chip" type="button" data-r="1.12">Balanced</button>
+      <button class="chip" type="button" data-r="0.90">Compression</button>
+      <label class="toggle"><input id="autoSweep" type="checkbox" /> Auto sweep</label>
+    </section>
+
+    <section class="stage">
+      <canvas id="scene"></canvas>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Regime</h2>
+        <div id="regime" class="big">Near equilibrium</div>
+        <div id="regimeNote" class="small">Attraction and core support are close to balancing.</div>
+      </article>
+      <article class="card">
+        <h2>Potential</h2>
+        <div id="potentialValue" class="big mono">-1.3480</div>
+        <div class="small"><span class="mono">V(r) = A/r^12 - B/r^3 - 1/r</span> with <span class="mono">A=B=1</span>.</div>
+      </article>
+      <article class="card">
+        <h2>Net Force</h2>
+        <div id="forceValue" class="big mono">0.0000</div>
+        <div class="small">Positive means the core pushes outward. Negative means the pair pulls inward.</div>
+      </article>
+      <article class="card">
+        <h2>Velocity Proxy</h2>
+        <div id="velocityValue" class="big mono">0.0000</div>
+        <div class="small"><span class="mono">v(r) = sqrt(r * |F(r)|)</span> from the toy model.</div>
+      </article>
+    </section>
+
+    <section class="legend">
+      <strong>How to read the sketch:</strong> the warm marker and cool marker are the opposite bipolar faces.
+      When they face each other at moderate distance, the pair attracts. When the translucent shells crowd each
+      other too strongly, the inner region brightens and the orange arrows flip outward to represent the added
+      short-range support term. The steep <span class="mono">1/r^12</span> choice is just a convenient stand-in
+      for that support mechanism, not a claim about twelve dimensions or a derived microscopic law.
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("scene");
+    const ctx = canvas.getContext("2d");
+    const rRange = document.getElementById("rRange");
+    const rValue = document.getElementById("rValue");
+    const regime = document.getElementById("regime");
+    const regimeNote = document.getElementById("regimeNote");
+    const potentialValue = document.getElementById("potentialValue");
+    const forceValue = document.getElementById("forceValue");
+    const velocityValue = document.getElementById("velocityValue");
+    const autoSweep = document.getElementById("autoSweep");
+    const presetButtons = [...document.querySelectorAll("[data-r]")];
+
+    const state = {
+      r: Number(rRange.value),
+      direction: 1,
+      lastTs: 0,
+      width: 0,
+      height: 0
+    };
+
+    const model = {
+      A: 1,
+      B: 1
+    };
+
+    function potential(r) {
+      return model.A / (r ** 12) - model.B / (r ** 3) - 1 / r;
+    }
+
+    function force(r) {
+      return 12 * model.A / (r ** 13) - 3 * model.B / (r ** 4) - 1 / (r ** 2);
+    }
+
+    function velocity(r) {
+      return Math.sqrt(Math.max(0, r * Math.abs(force(r))));
+    }
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      state.width = rect.width;
+      state.height = rect.height;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function arrow(ctx2d, x1, y1, x2, y2, color, width) {
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      const head = 10 + width * 0.8;
+      ctx2d.save();
+      ctx2d.strokeStyle = color;
+      ctx2d.fillStyle = color;
+      ctx2d.lineWidth = width;
+      ctx2d.lineCap = "round";
+      ctx2d.beginPath();
+      ctx2d.moveTo(x1, y1);
+      ctx2d.lineTo(x2, y2);
+      ctx2d.stroke();
+      ctx2d.beginPath();
+      ctx2d.moveTo(x2, y2);
+      ctx2d.lineTo(x2 - head * Math.cos(angle - Math.PI / 7), y2 - head * Math.sin(angle - Math.PI / 7));
+      ctx2d.lineTo(x2 - head * Math.cos(angle + Math.PI / 7), y2 - head * Math.sin(angle + Math.PI / 7));
+      ctx2d.closePath();
+      ctx2d.fill();
+      ctx2d.restore();
+    }
+
+    function fieldArrowLength(value, maxLength) {
+      return maxLength * Math.min(1, Math.log10(1 + Math.abs(value)) / 1.9);
+    }
+
+    function drawParticle(x, y, shellRadius, coreRadius, innerPositive) {
+      const outerHalo = ctx.createRadialGradient(x, y, coreRadius * 0.2, x, y, shellRadius * 1.4);
+      outerHalo.addColorStop(0, "rgba(255,255,255,0)");
+      outerHalo.addColorStop(0.45, innerPositive ? "rgba(215, 122, 39, 0.14)" : "rgba(25, 140, 141, 0.14)");
+      outerHalo.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = outerHalo;
+      ctx.beginPath();
+      ctx.arc(x, y, shellRadius * 1.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, shellRadius, 0, Math.PI * 2);
+      ctx.clip();
+
+      const innerColor = innerPositive ? "#d77a27" : "#198c8d";
+      const outerColor = innerPositive ? "#198c8d" : "#d77a27";
+
+      ctx.fillStyle = innerColor;
+      ctx.fillRect(x, y - shellRadius, shellRadius, shellRadius * 2);
+      ctx.fillStyle = outerColor;
+      ctx.fillRect(x - shellRadius, y - shellRadius, shellRadius, shellRadius * 2);
+
+      const sheen = ctx.createLinearGradient(x - shellRadius, y - shellRadius, x + shellRadius, y + shellRadius);
+      sheen.addColorStop(0, "rgba(255,255,255,0.36)");
+      sheen.addColorStop(0.45, "rgba(255,255,255,0.06)");
+      sheen.addColorStop(1, "rgba(22,33,45,0.16)");
+      ctx.fillStyle = sheen;
+      ctx.fillRect(x - shellRadius, y - shellRadius, shellRadius * 2, shellRadius * 2);
+      ctx.restore();
+
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(22,33,45,0.52)";
+      ctx.beginPath();
+      ctx.arc(x, y, shellRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.setLineDash([7, 6]);
+      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = "rgba(22,33,45,0.28)";
+      ctx.beginPath();
+      ctx.arc(x, y, shellRadius * 0.72, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#1e2833";
+      ctx.beginPath();
+      ctx.arc(x, y, coreRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255,255,255,0.55)";
+      ctx.beginPath();
+      ctx.arc(x, y, coreRadius * 0.66, 0, Math.PI * 2);
+      ctx.stroke();
+
+      const poleY = y - shellRadius * 0.55;
+      const poleOffset = shellRadius * 0.46;
+      const leftLabel = innerPositive ? "g-" : "g+";
+      const rightLabel = innerPositive ? "g+" : "g-";
+
+      ctx.font = "15px Georgia";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(250,248,241,0.96)";
+      ctx.fillText(leftLabel, x - poleOffset, poleY);
+      ctx.fillText(rightLabel, x + poleOffset, poleY);
+    }
+
+    function drawConnection(leftX, rightX, y, shellRadius, currentForce) {
+      const midpoint = (leftX + rightX) / 2;
+      const overlapPx = Math.max(0, shellRadius * 2 - (rightX - leftX));
+
+      ctx.save();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(22,33,45,0.16)";
+      ctx.setLineDash([6, 8]);
+      ctx.beginPath();
+      ctx.moveTo(leftX, y + shellRadius + 34);
+      ctx.lineTo(rightX, y + shellRadius + 34);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+
+      ctx.save();
+      const grad = ctx.createLinearGradient(leftX + shellRadius * 0.2, y, rightX - shellRadius * 0.2, y);
+      grad.addColorStop(0, "rgba(215, 122, 39, 0.08)");
+      grad.addColorStop(0.5, "rgba(255, 241, 217, 0.72)");
+      grad.addColorStop(1, "rgba(25, 140, 141, 0.08)");
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(leftX + shellRadius * 0.58, y);
+      ctx.bezierCurveTo(midpoint - 38, y - 24, midpoint + 38, y + 24, rightX - shellRadius * 0.58, y);
+      ctx.stroke();
+      ctx.restore();
+
+      if (overlapPx > 1) {
+        ctx.save();
+        ctx.fillStyle = "rgba(184, 74, 42, 0.18)";
+        ctx.beginPath();
+        ctx.ellipse(midpoint, y, overlapPx * 0.66, shellRadius * 0.76, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(184, 74, 42, 0.58)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(midpoint, y, overlapPx * 0.66, shellRadius * 0.76, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.fillStyle = "rgba(118, 33, 19, 0.88)";
+        ctx.font = "16px Georgia";
+        ctx.textAlign = "center";
+        ctx.fillText("shell compression", midpoint, y + shellRadius + 66);
+      } else {
+        ctx.fillStyle = "rgba(52, 74, 94, 0.82)";
+        ctx.font = "16px Georgia";
+        ctx.textAlign = "center";
+        ctx.fillText("dipole binding corridor", midpoint, y + shellRadius + 58);
+      }
+
+      const dipoleComponent = -3 / (state.r ** 4);
+      const gravityComponent = -1 / (state.r ** 2);
+      const repulsionComponent = 12 / (state.r ** 13);
+
+      const inwardDipole = fieldArrowLength(dipoleComponent, 66);
+      const inwardGravity = fieldArrowLength(gravityComponent, 54);
+      const outwardRepulsion = fieldArrowLength(repulsionComponent, 70);
+
+      arrow(ctx, midpoint - 82, y - 92, midpoint - 82 + inwardDipole, y - 92, "rgba(25, 140, 141, 0.88)", 4);
+      arrow(ctx, midpoint + 82, y - 92, midpoint + 82 - inwardDipole, y - 92, "rgba(25, 140, 141, 0.88)", 4);
+      ctx.fillStyle = "rgba(25, 140, 141, 0.92)";
+      ctx.font = "15px Georgia";
+      ctx.fillText("dipole pull", midpoint, y - 108);
+
+      arrow(ctx, midpoint - 72, y + 126, midpoint - 72 + inwardGravity, y + 126, "rgba(43, 108, 176, 0.8)", 3.4);
+      arrow(ctx, midpoint + 72, y + 126, midpoint + 72 - inwardGravity, y + 126, "rgba(43, 108, 176, 0.8)", 3.4);
+      ctx.fillStyle = "rgba(43, 108, 176, 0.92)";
+      ctx.fillText("gravity", midpoint, y + 150);
+
+      if (currentForce > 0.18 || overlapPx > 8) {
+        arrow(ctx, midpoint - 10, y + 2, midpoint - 10 - outwardRepulsion, y + 2, "rgba(184, 74, 42, 0.92)", 5);
+        arrow(ctx, midpoint + 10, y + 2, midpoint + 10 + outwardRepulsion, y + 2, "rgba(184, 74, 42, 0.92)", 5);
+        ctx.fillStyle = "rgba(184, 74, 42, 0.96)";
+        ctx.fillText("core support", midpoint, y - 18);
+      }
+
+      const netLength = fieldArrowLength(currentForce, 90);
+      ctx.font = "17px Georgia";
+      if (Math.abs(currentForce) < 0.08) {
+        ctx.fillStyle = "rgba(36, 84, 60, 0.92)";
+        ctx.fillText("net force approx. zero", midpoint, y - 148);
+      } else if (currentForce < 0) {
+        arrow(ctx, midpoint - 120, y - 148, midpoint - 120 + netLength, y - 148, "rgba(29, 74, 131, 0.9)", 5.4);
+        arrow(ctx, midpoint + 120, y - 148, midpoint + 120 - netLength, y - 148, "rgba(29, 74, 131, 0.9)", 5.4);
+        ctx.fillStyle = "rgba(29, 74, 131, 0.96)";
+        ctx.fillText("net attraction", midpoint, y - 166);
+      } else {
+        arrow(ctx, midpoint - 120, y - 148, midpoint - 120 - netLength, y - 148, "rgba(150, 53, 28, 0.94)", 5.4);
+        arrow(ctx, midpoint + 120, y - 148, midpoint + 120 + netLength, y - 148, "rgba(150, 53, 28, 0.94)", 5.4);
+        ctx.fillStyle = "rgba(150, 53, 28, 0.96)";
+        ctx.fillText("net repulsion", midpoint, y - 166);
+      }
+    }
+
+    function drawBackdrop() {
+      ctx.clearRect(0, 0, state.width, state.height);
+
+      for (let x = 18; x < state.width; x += 32) {
+        ctx.strokeStyle = "rgba(22, 33, 45, 0.045)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, state.height);
+        ctx.stroke();
+      }
+
+      for (let y = 18; y < state.height; y += 32) {
+        ctx.strokeStyle = "rgba(22, 33, 45, 0.045)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(state.width, y);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = "rgba(22, 33, 45, 0.06)";
+      ctx.font = "15px Georgia";
+      ctx.fillText("conceptual field notebook sketch", 28, 28);
+    }
+
+    function updateReadout(r, currentPotential, currentForce, currentVelocity) {
+      rValue.textContent = r.toFixed(3);
+      potentialValue.textContent = currentPotential.toFixed(4);
+      forceValue.textContent = currentForce.toFixed(4);
+      velocityValue.textContent = currentVelocity.toFixed(4);
+
+      if (r < 0.98) {
+        regime.textContent = "Compression zone";
+        regimeNote.textContent = "Shell overlap is strong; the repulsive support term dominates and pushes the pair apart.";
+      } else if (Math.abs(currentForce) < 0.08) {
+        regime.textContent = "Near equilibrium";
+        regimeNote.textContent = "Attraction and core support are close to balancing at a finite nonzero separation.";
+      } else if (currentForce < 0) {
+        regime.textContent = "Attraction dominated";
+        regimeNote.textContent = "Dipole binding plus gravity pull inward more strongly than the core support pushes outward.";
+      } else {
+        regime.textContent = "Repulsion dominated";
+        regimeNote.textContent = "The short-range support term is stronger than the inward pull at this separation.";
+      }
+    }
+
+    function render() {
+      drawBackdrop();
+
+      const r = state.r;
+      const currentPotential = potential(r);
+      const currentForce = force(r);
+      const currentVelocity = velocity(r);
+
+      updateReadout(r, currentPotential, currentForce, currentVelocity);
+
+      const centerX = state.width / 2;
+      const centerY = state.height * 0.52;
+      const shellRadius = Math.min(state.width, state.height) * 0.092;
+      const coreRadius = shellRadius * 0.54;
+      const separationPx = r * (state.width * 0.108);
+      const leftX = centerX - separationPx / 2;
+      const rightX = centerX + separationPx / 2;
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(22, 33, 45, 0.12)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(60, centerY);
+      ctx.lineTo(state.width - 60, centerY);
+      ctx.stroke();
+      ctx.restore();
+
+      drawConnection(leftX, rightX, centerY, shellRadius, currentForce);
+      drawParticle(leftX, centerY, shellRadius, coreRadius, true);
+      drawParticle(rightX, centerY, shellRadius, coreRadius, true);
+
+      ctx.fillStyle = "rgba(22, 33, 45, 0.76)";
+      ctx.font = "16px Georgia";
+      ctx.textAlign = "center";
+      ctx.fillText("opposite inner faces align here", centerX, centerY - shellRadius - 42);
+
+      ctx.fillStyle = "rgba(22, 33, 45, 0.78)";
+      ctx.font = "15px Georgia";
+      ctx.fillText("r", centerX, centerY + shellRadius + 16);
+      ctx.beginPath();
+      ctx.moveTo(leftX, centerY + shellRadius + 30);
+      ctx.lineTo(rightX, centerY + shellRadius + 30);
+      ctx.strokeStyle = "rgba(22, 33, 45, 0.45)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function animate(timestamp) {
+      if (!state.lastTs) state.lastTs = timestamp;
+      const dt = Math.min(40, timestamp - state.lastTs);
+      state.lastTs = timestamp;
+
+      if (autoSweep.checked) {
+        const speed = 0.00135 * dt;
+        state.r += speed * state.direction * 42;
+        if (state.r >= Number(rRange.max)) {
+          state.r = Number(rRange.max);
+          state.direction = -1;
+        } else if (state.r <= Number(rRange.min)) {
+          state.r = Number(rRange.min);
+          state.direction = 1;
+        }
+        rRange.value = state.r.toFixed(3);
+      }
+
+      render();
+      requestAnimationFrame(animate);
+    }
+
+    rRange.addEventListener("input", () => {
+      state.r = Number(rRange.value);
+    });
+
+    presetButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        state.r = Number(button.dataset.r);
+        rRange.value = state.r.toFixed(3);
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      render();
+    });
+
+    resizeCanvas();
+    render();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

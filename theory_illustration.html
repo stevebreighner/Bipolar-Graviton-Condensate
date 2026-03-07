@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bipolar Graviton Condensate Illustration</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+    :root {
+      --bg-0: #030309;
+      --bg-1: #0a0718;
+      --panel: rgba(11, 13, 27, 0.78);
+      --panel-border: rgba(180, 201, 255, 0.18);
+      --text-main: #eef1ff;
+      --text-dim: #aeb6d8;
+      --accent: #8f7cff;
+      --accent-2: #46d7ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(120vw 90vh at 20% 15%, rgba(102, 53, 255, 0.14), transparent 55%),
+        radial-gradient(90vw 80vh at 85% 90%, rgba(41, 182, 255, 0.09), transparent 55%),
+        linear-gradient(160deg, var(--bg-0), var(--bg-1));
+      color: var(--text-main);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    #scene {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    .hud {
+      position: fixed;
+      left: 16px;
+      top: 16px;
+      width: min(420px, calc(100vw - 32px));
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(8px);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .title {
+      margin: 0;
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1rem, 1.2vw + 0.7rem, 1.35rem);
+      line-height: 1.2;
+      letter-spacing: 0.04em;
+    }
+
+    .subtitle {
+      margin: 6px 0 10px;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .stage-wrap {
+      margin: 8px 0 10px;
+    }
+
+    .stage-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 0.86rem;
+      color: var(--text-dim);
+    }
+
+    .stage-name {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .meter {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter > span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 16px rgba(143, 124, 255, 0.65);
+      transition: width 0.12s linear;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 1px solid rgba(191, 206, 255, 0.3);
+      background: rgba(36, 41, 78, 0.78);
+      color: var(--text-main);
+      padding: 8px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      font: 600 0.84rem/1 'Space Grotesk', sans-serif;
+      letter-spacing: 0.02em;
+    }
+
+    button:hover {
+      background: rgba(61, 67, 118, 0.86);
+    }
+
+    .speed {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    input[type='range'] {
+      width: 120px;
+      accent-color: #8f7cff;
+    }
+
+    @media (max-width: 680px) {
+      .hud {
+        top: auto;
+        bottom: 12px;
+      }
+
+      .speed {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <aside class="hud">
+    <h1 class="title">Bipolar Graviton Condensate</h1>
+    <p class="subtitle">Star color evolves by stage, but halo radius stays fixed while the core implodes until a graviton cloud remains.</p>
+
+    <div class="stage-wrap">
+      <div class="stage-label">
+        <span class="stage-name" id="stageName">Stage</span>
+        <span id="stageClock">00.0s</span>
+      </div>
+      <div class="meter"><span id="progress"></span></div>
+    </div>
+
+    <div class="controls">
+      <button id="playPause" type="button">Pause</button>
+      <button id="restart" type="button">Restart</button>
+      <label class="speed" for="speedSlider">
+        Speed
+        <input id="speedSlider" type="range" min="0.5" max="2" step="0.1" value="1" />
+      </label>
+    </div>
+  </aside>
+
+  <script>
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+
+    const stageNameEl = document.getElementById('stageName');
+    const stageClockEl = document.getElementById('stageClock');
+    const progressEl = document.getElementById('progress');
+    const playPauseBtn = document.getElementById('playPause');
+    const restartBtn = document.getElementById('restart');
+    const speedSlider = document.getElementById('speedSlider');
+
+    const stages = [
+      { name: 'Early Main Sequence', color: [178, 206, 255], radius: 140, duration: 4.2 },
+      { name: 'Yellow Dwarf Phase', color: [255, 236, 166], radius: 120, duration: 3.6 },
+      { name: 'Orange Expansion', color: [255, 173, 95], radius: 92, duration: 3.2 },
+      { name: 'Red Giant Exhaustion', color: [255, 97, 86], radius: 62, duration: 3.0 },
+      { name: 'Implosion Window', color: [160, 98, 255], radius: 28, duration: 4.8 },
+      { name: 'Graviton Cloud Remainder', color: [144, 97, 255], radius: 0, duration: 5.2 }
+    ];
+
+    const totalDuration = stages.reduce((sum, s) => sum + s.duration, 0);
+    const haloRadius = 175;
+
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let currentTime = 0;
+    let lastFrame = performance.now();
+    let playing = true;
+    let speed = 1;
+
+    const stars = [];
+    for (let i = 0; i < 250; i += 1) {
+      stars.push({
+        x: Math.random(),
+        y: Math.random(),
+        size: Math.random() * 1.8 + 0.2,
+        twinkle: Math.random() * Math.PI * 2,
+        drift: (Math.random() - 0.5) * 0.00003
+      });
+    }
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = Math.floor(window.innerWidth);
+      height = Math.floor(window.innerHeight);
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function stageAt(timeSec) {
+      let acc = 0;
+      for (let i = 0; i < stages.length; i += 1) {
+        const stage = stages[i];
+        const next = acc + stage.duration;
+        if (timeSec <= next || i === stages.length - 1) {
+          const localT = Math.max(0, Math.min(1, (timeSec - acc) / stage.duration));
+          const nextStage = stages[Math.min(i + 1, stages.length - 1)];
+          return {
+            idx: i,
+            globalT: timeSec / totalDuration,
+            localT,
+            stage,
+            nextStage,
+            start: acc,
+            end: next
+          };
+        }
+        acc = next;
+      }
+      return null;
+    }
+
+    function colorMix(c0, c1, t) {
+      return [
+        Math.round(lerp(c0[0], c1[0], t)),
+        Math.round(lerp(c0[1], c1[1], t)),
+        Math.round(lerp(c0[2], c1[2], t))
+      ];
+    }
+
+    function drawBackground(timeSec) {
+      ctx.clearRect(0, 0, width, height);
+
+      const bg = ctx.createRadialGradient(
+        width * 0.5,
+        height * 0.48,
+        10,
+        width * 0.5,
+        height * 0.48,
+        Math.max(width, height) * 0.75
+      );
+      bg.addColorStop(0, 'rgba(20, 16, 45, 0.45)');
+      bg.addColorStop(0.5, 'rgba(7, 8, 19, 0.9)');
+      bg.addColorStop(1, 'rgba(2, 2, 8, 1)');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+
+      for (let i = 0; i < stars.length; i += 1) {
+        const s = stars[i];
+        s.x = (s.x + s.drift + 1) % 1;
+        const tw = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(timeSec * 0.9 + s.twinkle));
+        ctx.fillStyle = `rgba(220,235,255,${tw * 0.7})`;
+        ctx.beginPath();
+        ctx.arc(s.x * width, s.y * height, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawSystem(timeSec, model) {
+      const cx = width * 0.5;
+      const cy = height * 0.52;
+
+      const color = colorMix(model.stage.color, model.nextStage.color, model.localT);
+      const coreRadius = lerp(model.stage.radius, model.nextStage.radius, model.localT);
+      const collapseLevel = Math.max(0, Math.min(1, (currentTime - (totalDuration - 6.4)) / 6.4));
+
+      const haloGlow = ctx.createRadialGradient(cx, cy, haloRadius * 0.2, cx, cy, haloRadius * 1.25);
+      haloGlow.addColorStop(0, `rgba(152,115,255,${0.16 + collapseLevel * 0.12})`);
+      haloGlow.addColorStop(0.65, 'rgba(132,98,255,0.08)');
+      haloGlow.addColorStop(1, 'rgba(132,98,255,0)');
+      ctx.fillStyle = haloGlow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, haloRadius * 1.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = `rgba(170, 136, 255, ${0.45 - collapseLevel * 0.18})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, haloRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (coreRadius > 1) {
+        const core = ctx.createRadialGradient(cx - coreRadius * 0.2, cy - coreRadius * 0.25, 2, cx, cy, coreRadius * 1.15);
+        core.addColorStop(0, `rgba(255,255,255,${0.75 - collapseLevel * 0.25})`);
+        core.addColorStop(0.35, `rgba(${color[0]},${color[1]},${color[2]},0.95)`);
+        core.addColorStop(1, `rgba(${Math.max(0, color[0] - 50)},${Math.max(0, color[1] - 50)},${Math.max(0, color[2] - 40)},0.35)`);
+        ctx.fillStyle = core;
+        ctx.beginPath();
+        ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      const particleCount = 65;
+      const spin = timeSec * 0.7;
+      for (let i = 0; i < particleCount; i += 1) {
+        const k = i / particleCount;
+        const angle = k * Math.PI * 2 + spin + Math.sin(timeSec * 0.35 + i) * 0.22;
+        const orbit = haloRadius * (0.55 + 0.44 * Math.sin(timeSec * 0.22 + i * 1.7) ** 2);
+        const px = cx + Math.cos(angle) * orbit;
+        const py = cy + Math.sin(angle) * orbit * 0.82;
+        const alpha = 0.1 + 0.5 * collapseLevel + 0.22 * Math.sin(timeSec * 1.7 + i);
+        const size = 0.8 + 1.8 * (0.5 + 0.5 * Math.sin(i * 3.1 + timeSec));
+        ctx.fillStyle = `rgba(185, 140, 255, ${Math.max(0.05, Math.min(0.82, alpha))})`;
+        ctx.beginPath();
+        ctx.arc(px, py, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function updateHud(model) {
+      stageNameEl.textContent = model.stage.name;
+      stageClockEl.textContent = currentTime.toFixed(1) + 's';
+      progressEl.style.width = (model.globalT * 100).toFixed(2) + '%';
+    }
+
+    function frame(now) {
+      const delta = Math.min(0.05, (now - lastFrame) / 1000);
+      lastFrame = now;
+
+      if (playing) {
+        currentTime += delta * speed;
+        if (currentTime > totalDuration) {
+          currentTime = 0;
+        }
+      }
+
+      const model = stageAt(currentTime);
+      drawBackground(currentTime);
+      drawSystem(currentTime, model);
+      updateHud(model);
+
+      requestAnimationFrame(frame);
+    }
+
+    playPauseBtn.addEventListener('click', () => {
+      playing = !playing;
+      playPauseBtn.textContent = playing ? 'Pause' : 'Play';
+    });
+
+    restartBtn.addEventListener('click', () => {
+      currentTime = 0;
+      playPauseBtn.textContent = 'Pause';
+      playing = true;
+    });
+
+    speedSlider.addEventListener('input', (event) => {
+      speed = Number(event.target.value);
+    });
+
+    window.addEventListener('resize', resize);
+    resize();
+    requestAnimationFrame((t) => {
+      lastFrame = t;
+      frame(t);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spacetime Grid Concept</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+
+    :root {
+      --bg-a: #03050d;
+      --bg-b: #0d1328;
+      --panel: rgba(10, 16, 33, 0.78);
+      --panel-border: rgba(163, 192, 255, 0.22);
+      --text: #edf3ff;
+      --muted: #9fb2d9;
+      --accent: #67d7ff;
+      --accent-2: #85a1ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(120vw 90vh at 10% 0%, rgba(101, 142, 255, 0.12), transparent 58%),
+        radial-gradient(90vw 80vh at 100% 100%, rgba(71, 223, 255, 0.08), transparent 54%),
+        linear-gradient(160deg, var(--bg-a), var(--bg-b));
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    #scene {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    .panel {
+      position: fixed;
+      right: 14px;
+      top: 14px;
+      width: min(340px, calc(100vw - 28px));
+      max-height: calc(100vh - 28px);
+      overflow: auto;
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 8px 0 12px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+
+    .row {
+      margin-bottom: 10px;
+    }
+
+    .row:last-child {
+      margin-bottom: 0;
+    }
+
+    .label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+    }
+
+    .value {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    input[type='range'] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      color: var(--muted);
+      user-select: none;
+    }
+
+    .readout {
+      border: 1px solid rgba(153, 189, 255, 0.25);
+      background: rgba(8, 12, 25, 0.65);
+      border-radius: 8px;
+      padding: 8px;
+      color: #dbe8ff;
+      font-size: 0.78rem;
+      line-height: 1.3;
+    }
+
+    .action-btn {
+      width: 100%;
+      border: 1px solid rgba(160, 197, 255, 0.35);
+      background: linear-gradient(135deg, rgba(72, 106, 215, 0.72), rgba(71, 204, 255, 0.6));
+      color: #edf5ff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 9px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
+    .action-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    @media (max-width: 700px) {
+      .panel {
+        top: auto;
+        bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <aside class="panel">
+    <h1>Spacetime Grid (Concept)</h1>
+    <p>Conceptual visualization: a mass at center bends a spacetime-like grid. Increase mass to deepen curvature.</p>
+
+    <div class="row">
+      <div class="label">Mass / Curvature <span class="value" id="depthVal">0.72</span></div>
+      <input id="depth" type="range" min="0.1" max="1.4" step="0.01" value="0.72" />
+    </div>
+
+    <div class="row">
+      <div class="label">Star Size (visual) <span class="value" id="starSizeVal">1.00x</span></div>
+      <input id="starSize" type="range" min="0.25" max="2.2" step="0.01" value="1" />
+    </div>
+
+    <div class="row">
+      <button id="launchSequence" class="action-btn" type="button">Launch Star Sequence</button>
+      <div id="sequenceStatus" class="readout" style="margin-top: 8px;">Idle: manual star size mode</div>
+    </div>
+
+    <div class="row">
+      <div class="label">Curvature Radius <span class="value" id="sigmaVal">0.38</span></div>
+      <input id="sigma" type="range" min="0.18" max="0.9" step="0.01" value="0.38" />
+    </div>
+
+    <div class="row">
+      <div class="label">Grid Density <span class="value" id="densityVal">28</span></div>
+      <input id="density" type="range" min="14" max="42" step="1" value="28" />
+    </div>
+
+    <div class="row">
+      <div class="label">View Tilt <span class="value" id="tiltVal">58°</span></div>
+      <input id="tilt" type="range" min="0" max="78" step="1" value="58" />
+    </div>
+
+    <div class="row">
+      <div class="label">View Rotation <span class="value" id="yawVal">0°</span></div>
+      <input id="yaw" type="range" min="-45" max="45" step="1" value="0" />
+    </div>
+
+    <div class="row">
+      <div class="label">Zoom <span class="value" id="zoomVal">1.00x</span></div>
+      <input id="zoom" type="range" min="0.65" max="1.7" step="0.01" value="1" />
+    </div>
+
+    <label class="toggle">
+      <input id="pulse" type="checkbox" checked />
+      subtle pulse
+    </label>
+
+    <div style="height: 8px;"></div>
+
+    <label class="toggle">
+      <input id="dilation" type="checkbox" checked />
+      show time-dilation overlay
+    </label>
+
+    <div class="row" style="margin-top: 8px;">
+      <div class="label">Relative Clock Rate</div>
+      <div id="clockRates" class="readout">near 0.00x | mid 0.00x | far 0.00x</div>
+    </div>
+    <p style="margin: 8px 0 0; font-size: 0.76rem;">Use Star Size to shrink/grow the star while keeping mass fixed (unless you change Mass / Curvature).</p>
+  </aside>
+
+  <script>
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+
+    const depthInput = document.getElementById('depth');
+    const starSizeInput = document.getElementById('starSize');
+    const launchSequenceBtn = document.getElementById('launchSequence');
+    const sigmaInput = document.getElementById('sigma');
+    const densityInput = document.getElementById('density');
+    const tiltInput = document.getElementById('tilt');
+    const yawInput = document.getElementById('yaw');
+    const zoomInput = document.getElementById('zoom');
+    const pulseInput = document.getElementById('pulse');
+    const dilationInput = document.getElementById('dilation');
+
+    const depthVal = document.getElementById('depthVal');
+    const starSizeVal = document.getElementById('starSizeVal');
+    const sigmaVal = document.getElementById('sigmaVal');
+    const densityVal = document.getElementById('densityVal');
+    const tiltVal = document.getElementById('tiltVal');
+    const yawVal = document.getElementById('yawVal');
+    const zoomVal = document.getElementById('zoomVal');
+    const clockRatesEl = document.getElementById('clockRates');
+    const sequenceStatusEl = document.getElementById('sequenceStatus');
+
+    const baseStarColor = [180, 210, 255];
+    const sequenceStages = [
+      { name: 'Blue Giant', size: 2.0, color: [162, 202, 255], duration: 2.5 },
+      { name: 'Yellow Supergiant', size: 1.62, color: [255, 232, 168], duration: 2.2 },
+      { name: 'Orange Giant', size: 1.28, color: [255, 175, 106], duration: 2.0 },
+      { name: 'Red Giant', size: 0.94, color: [255, 104, 92], duration: 2.0 },
+      { name: 'White Dwarf', size: 0.5, color: [238, 246, 255], duration: 2.4 },
+      { name: 'Compact Remnant', size: 0.28, color: [176, 130, 255], duration: 2.6 }
+    ];
+    const sequenceDuration = sequenceStages.reduce((sum, stage) => sum + stage.duration, 0);
+
+    const state = {
+      depth: Number(depthInput.value),
+      starSize: Number(starSizeInput.value),
+      starColor: baseStarColor.slice(),
+      sigma: Number(sigmaInput.value),
+      density: Number(densityInput.value),
+      tiltDeg: Number(tiltInput.value),
+      yawDeg: Number(yawInput.value),
+      zoom: Number(zoomInput.value),
+      pulse: pulseInput.checked,
+      showDilation: dilationInput.checked,
+      sequenceActive: false,
+      sequenceTime: 0,
+      t: 0
+    };
+
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let last = performance.now();
+
+    const stars = Array.from({ length: 180 }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 1.6 + 0.2,
+      tw: Math.random() * Math.PI * 2
+    }));
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = Math.floor(window.innerWidth);
+      height = Math.floor(window.innerHeight);
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function warpY(x, z, t) {
+      const r2 = x * x + z * z;
+      const depth = effectiveDepth(t);
+      return -depth * Math.exp(-r2 / (2 * state.sigma * state.sigma));
+    }
+
+    function effectiveDepth(t) {
+      const pulse = state.pulse ? (0.9 + 0.1 * Math.sin(t * 1.6)) : 1;
+      return state.depth * pulse;
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function mixColor(c0, c1, t) {
+      return [
+        Math.round(lerp(c0[0], c1[0], t)),
+        Math.round(lerp(c0[1], c1[1], t)),
+        Math.round(lerp(c0[2], c1[2], t))
+      ];
+    }
+
+    function rgba(color, alpha) {
+      return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+    }
+
+    function sequenceAt(timeSec) {
+      let acc = 0;
+      for (let i = 0; i < sequenceStages.length; i += 1) {
+        const stage = sequenceStages[i];
+        const next = sequenceStages[Math.min(i + 1, sequenceStages.length - 1)];
+        const end = acc + stage.duration;
+        if (timeSec <= end || i === sequenceStages.length - 1) {
+          const local = stage.duration > 0 ? Math.max(0, Math.min(1, (timeSec - acc) / stage.duration)) : 1;
+          return {
+            name: stage.name,
+            size: lerp(stage.size, next.size, local),
+            color: mixColor(stage.color, next.color, local),
+            finished: timeSec >= sequenceDuration
+          };
+        }
+        acc = end;
+      }
+      const lastStage = sequenceStages[sequenceStages.length - 1];
+      return { name: lastStage.name, size: lastStage.size, color: lastStage.color, finished: true };
+    }
+
+    function startStarSequence() {
+      state.sequenceActive = true;
+      state.sequenceTime = 0;
+      launchSequenceBtn.textContent = 'Restart Sequence';
+      sequenceStatusEl.textContent = 'Running: Blue Giant';
+    }
+
+    function timeRateAtRadius(r, t) {
+      const depth = effectiveDepth(t);
+      const rs = 0.08 + 0.58 * Math.min(1.6, depth) / 1.6;
+      const radius = 0.22 + r;
+      const raw = 1 - rs / radius;
+      return Math.sqrt(Math.max(0.06, raw));
+    }
+
+    function project(x, y, z) {
+      const yaw = state.yawDeg * Math.PI / 180;
+      const tilt = state.tiltDeg * Math.PI / 180;
+      const cosY = Math.cos(yaw);
+      const sinY = Math.sin(yaw);
+      const cosT = Math.cos(tilt);
+      const sinT = Math.sin(tilt);
+
+      const xr = x * cosY - z * sinY;
+      const zr0 = x * sinY + z * cosY;
+
+      const yr = y * cosT - zr0 * sinT;
+      const zr = y * sinT + zr0 * cosT;
+
+      const cam = 2.2;
+      const fov = 700;
+      const denom = Math.max(50, fov + (zr + cam) * 340);
+      const scale = (fov * state.zoom) / denom;
+
+      const px = width * 0.5 + xr * 470 * scale;
+      const py = height * 0.52 + yr * 470 * scale;
+      return { x: px, y: py, scale, zr };
+    }
+
+    function drawBackground(t) {
+      const bg = ctx.createRadialGradient(
+        width * 0.5,
+        height * 0.42,
+        30,
+        width * 0.5,
+        height * 0.52,
+        Math.max(width, height) * 0.75
+      );
+      bg.addColorStop(0, 'rgba(20,31,62,0.36)');
+      bg.addColorStop(1, 'rgba(2,4,10,1)');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+
+      for (let i = 0; i < stars.length; i += 1) {
+        const s = stars[i];
+        const tw = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(t * 0.9 + s.tw));
+        ctx.fillStyle = `rgba(214,232,255,${tw * 0.65})`;
+        ctx.beginPath();
+        ctx.arc(s.x * width, s.y * height, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function lineColor(depthFactor) {
+      const c = Math.max(0, Math.min(1, depthFactor));
+      const r = Math.round(75 + 90 * c);
+      const g = Math.round(156 + 60 * c);
+      const b = Math.round(255 - 18 * c);
+      return `rgba(${r},${g},${b},${0.35 + 0.48 * c})`;
+    }
+
+    function drawGrid(t) {
+      const extent = 1.36;
+      const steps = state.density;
+      const step = (2 * extent) / steps;
+
+      ctx.lineWidth = 1.2;
+
+      for (let i = 0; i <= steps; i += 1) {
+        const x = -extent + i * step;
+        ctx.beginPath();
+        let started = false;
+        for (let j = 0; j <= steps; j += 1) {
+          const z = -extent + j * step;
+          const y = warpY(x, z, t);
+          const p = project(x, y, z);
+          if (!started) {
+            ctx.moveTo(p.x, p.y);
+            started = true;
+          } else {
+            ctx.lineTo(p.x, p.y);
+          }
+        }
+        const influence = Math.exp(-(x * x) / (2 * state.sigma * state.sigma));
+        ctx.strokeStyle = lineColor(influence);
+        ctx.stroke();
+      }
+
+      for (let j = 0; j <= steps; j += 1) {
+        const z = -extent + j * step;
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= steps; i += 1) {
+          const x = -extent + i * step;
+          const y = warpY(x, z, t);
+          const p = project(x, y, z);
+          if (!started) {
+            ctx.moveTo(p.x, p.y);
+            started = true;
+          } else {
+            ctx.lineTo(p.x, p.y);
+          }
+        }
+        const influence = Math.exp(-(z * z) / (2 * state.sigma * state.sigma));
+        ctx.strokeStyle = lineColor(influence);
+        ctx.stroke();
+      }
+    }
+
+    function drawCenterMass(t) {
+      const y = warpY(0, 0, t);
+      const center = project(0, y, 0);
+      const starScale = Math.max(0.2, state.starSize);
+      const glowRadius = 86 * starScale;
+      const coreRadius = 8.5 * starScale;
+      const ringX = 86 * starScale;
+      const ringY = 26 * starScale;
+      const c = state.starColor;
+      const glowColor = c;
+      const edgeColor = [
+        Math.max(0, Math.round(c[0] * 0.58)),
+        Math.max(0, Math.round(c[1] * 0.58)),
+        Math.max(0, Math.round(c[2] * 0.58))
+      ];
+
+      const glow = ctx.createRadialGradient(center.x, center.y, 3 * starScale, center.x, center.y, 75 * starScale);
+      glow.addColorStop(0, 'rgba(255,255,255,0.96)');
+      glow.addColorStop(0.35, rgba(glowColor, 0.56));
+      glow.addColorStop(1, rgba(edgeColor, 0));
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, glowRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = rgba(mixColor(c, [255, 255, 255], 0.45), 0.96);
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, coreRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = rgba(mixColor(c, [150, 210, 255], 0.42), 0.55);
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.ellipse(center.x, center.y + 2, ringX, ringY, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    function drawTimeDilationOverlay(t) {
+      if (!state.showDilation) {
+        return;
+      }
+
+      const center = project(0, warpY(0, 0, t), 0);
+      const zones = [
+        { r: 0.24, label: 'Near core', color: 'rgba(255, 112, 126, 0.85)' },
+        { r: 0.58, label: 'Middle', color: 'rgba(255, 186, 98, 0.82)' },
+        { r: 1.0, label: 'Outer', color: 'rgba(117, 215, 255, 0.82)' }
+      ];
+
+      ctx.save();
+      ctx.setLineDash([6, 6]);
+      ctx.lineWidth = 1.2;
+      ctx.font = '12px Space Grotesk';
+      ctx.textBaseline = 'middle';
+
+      for (let i = 0; i < zones.length; i += 1) {
+        const zone = zones[i];
+        const edge = project(zone.r, warpY(zone.r, 0, t), 0);
+        const sr = Math.max(16, Math.hypot(edge.x - center.x, edge.y - center.y));
+        const rate = timeRateAtRadius(zone.r, t);
+
+        ctx.strokeStyle = zone.color;
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, sr, 0, Math.PI * 2);
+        ctx.stroke();
+
+        const lx = center.x + sr + 12;
+        const ly = center.y - 26 + i * 20;
+        ctx.strokeStyle = 'rgba(186, 209, 255, 0.55)';
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath();
+        ctx.moveTo(center.x + sr * 0.72, center.y);
+        ctx.lineTo(lx - 6, ly);
+        ctx.stroke();
+        ctx.setLineDash([6, 6]);
+
+        ctx.fillStyle = zone.color;
+        ctx.fillText(`${zone.label}: ${rate.toFixed(2)}x`, lx, ly);
+      }
+
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(214, 226, 255, 0.78)';
+      ctx.fillText('Local clock rate decreases toward stronger curvature', 16, height - 20);
+      ctx.restore();
+    }
+
+    function updateClockReadout(t) {
+      const near = timeRateAtRadius(0.24, t);
+      const mid = timeRateAtRadius(0.58, t);
+      const far = timeRateAtRadius(1.0, t);
+      clockRatesEl.textContent = `near ${near.toFixed(2)}x | mid ${mid.toFixed(2)}x | far ${far.toFixed(2)}x`;
+    }
+
+    function updateUI() {
+      depthVal.textContent = state.depth.toFixed(2);
+      starSizeVal.textContent = `${state.starSize.toFixed(2)}x`;
+      sigmaVal.textContent = state.sigma.toFixed(2);
+      densityVal.textContent = String(state.density);
+      tiltVal.textContent = `${Math.round(state.tiltDeg)}°`;
+      yawVal.textContent = `${Math.round(state.yawDeg)}°`;
+      zoomVal.textContent = `${state.zoom.toFixed(2)}x`;
+    }
+
+    function tick(now) {
+      const dt = Math.min(0.04, (now - last) / 1000);
+      last = now;
+      state.t += dt;
+
+      if (state.sequenceActive) {
+        state.sequenceTime += dt;
+        const seq = sequenceAt(state.sequenceTime);
+        state.starSize = seq.size;
+        state.starColor = seq.color;
+        starSizeInput.value = seq.size.toFixed(2);
+        sequenceStatusEl.textContent = `Running: ${seq.name} | size ${seq.size.toFixed(2)}x`;
+
+        if (seq.finished) {
+          state.sequenceActive = false;
+          sequenceStatusEl.textContent = `Complete: ${seq.name} | size ${seq.size.toFixed(2)}x`;
+        }
+      }
+
+      drawBackground(state.t);
+      drawGrid(state.t);
+      drawCenterMass(state.t);
+      drawTimeDilationOverlay(state.t);
+      updateClockReadout(state.t);
+      updateUI();
+      requestAnimationFrame(tick);
+    }
+
+    depthInput.addEventListener('input', () => {
+      state.depth = Number(depthInput.value);
+      updateUI();
+    });
+
+    starSizeInput.addEventListener('input', () => {
+      state.starSize = Number(starSizeInput.value);
+      state.starColor = baseStarColor.slice();
+      if (state.sequenceActive) {
+        state.sequenceActive = false;
+        sequenceStatusEl.textContent = 'Sequence stopped: manual star size mode';
+      } else {
+        sequenceStatusEl.textContent = 'Idle: manual star size mode';
+      }
+      updateUI();
+    });
+
+    launchSequenceBtn.addEventListener('click', () => {
+      startStarSequence();
+      updateUI();
+    });
+
+    sigmaInput.addEventListener('input', () => {
+      state.sigma = Number(sigmaInput.value);
+      updateUI();
+    });
+
+    densityInput.addEventListener('input', () => {
+      state.density = Number(densityInput.value);
+      updateUI();
+    });
+
+    tiltInput.addEventListener('input', () => {
+      state.tiltDeg = Number(tiltInput.value);
+      updateUI();
+    });
+
+    yawInput.addEventListener('input', () => {
+      state.yawDeg = Number(yawInput.value);
+      updateUI();
+    });
+
+    zoomInput.addEventListener('input', () => {
+      state.zoom = Number(zoomInput.value);
+      updateUI();
+    });
+
+    pulseInput.addEventListener('change', () => {
+      state.pulse = pulseInput.checked;
+    });
+
+    dilationInput.addEventListener('change', () => {
+      state.showDilation = dilationInput.checked;
+    });
+
+    window.addEventListener('resize', resize);
+
+    resize();
+    updateUI();
+    requestAnimationFrame((t) => {
+      last = t;
+      tick(t);
+    });
+  </script>
+</body>
+</html>

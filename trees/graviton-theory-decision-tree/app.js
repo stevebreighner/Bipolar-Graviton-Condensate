@@ -109,7 +109,7 @@ const state = {
   layoutMode: "book",
   zoom: 0.9,
   focusMode: false,
-  highlightedPathTargetId: null,
+  highlightedPathTargetIds: new Set(),
   inlineEdit: null,
   snapshots: [],
   boxSelectedNodeIds: new Set(),
@@ -166,6 +166,7 @@ const el = {
   devModal: document.getElementById("devModal"),
   newTreeFromSelectionBtn: document.getElementById("newTreeFromSelectionBtn"),
   clearSelectionBtn: document.getElementById("clearSelectionBtn"),
+  clearHighlightsBtn: document.getElementById("clearHighlightsBtn"),
   focusBtn: document.getElementById("focusBtn"),
   collapseToggleBtn: document.getElementById("collapseToggleBtn"),
   saveSnapshotBtn: document.getElementById("saveSnapshotBtn"),
@@ -269,6 +270,7 @@ function loadTreeFromImportKey() {
     state.tree = sanitizeTree(parsed.tree);
     state.selectedId = typeof parsed.selectedId === "string" ? parsed.selectedId : state.tree.id;
     if (!findNodeAndParent(state.selectedId)) state.selectedId = state.tree.id;
+    state.highlightedPathTargetIds = new Set();
     saveState();
     localStorage.removeItem(importKey);
     clearImportKeyFromUrl();
@@ -317,20 +319,49 @@ function findPath(targetId, current = state.tree, path = []) {
 function getHighlightedPathInfo() {
   const nodeIds = new Set();
   const edgeIds = new Set();
-  if (!state.highlightedPathTargetId) return { nodeIds, edgeIds };
+  if (!state.highlightedPathTargetIds.size) return { nodeIds, edgeIds };
 
-  const path = findPath(state.highlightedPathTargetId);
-  if (!path) {
-    state.highlightedPathTargetId = null;
-    return { nodeIds, edgeIds };
+  const validTargets = new Set();
+  for (const targetId of state.highlightedPathTargetIds) {
+    const path = findPath(targetId);
+    if (!path) continue;
+    validTargets.add(targetId);
+    for (let i = 0; i < path.length; i++) {
+      nodeIds.add(path[i]);
+      if (i > 0) edgeIds.add(`${path[i - 1]}->${path[i]}`);
+    }
   }
 
-  for (let i = 0; i < path.length; i++) {
-    nodeIds.add(path[i]);
-    if (i > 0) edgeIds.add(`${path[i - 1]}->${path[i]}`);
-  }
+  state.highlightedPathTargetIds = validTargets;
 
   return { nodeIds, edgeIds };
+}
+
+function clearHighlightedPaths(showMessage = false) {
+  if (!state.highlightedPathTargetIds.size) return;
+  state.highlightedPathTargetIds = new Set();
+  render();
+  if (showMessage) setStatus("Decision line highlights cleared.");
+}
+
+function toggleHighlightedPath(nodeId) {
+  if (!nodeId) return;
+  if (state.highlightedPathTargetIds.has(nodeId)) {
+    state.highlightedPathTargetIds.delete(nodeId);
+  } else {
+    state.highlightedPathTargetIds.add(nodeId);
+  }
+  state.selectedId = nodeId;
+  syncEditor();
+  render();
+  updateCollapseButton();
+  const count = state.highlightedPathTargetIds.size;
+  if (!count) {
+    setStatus("Decision line highlights cleared.");
+    return;
+  }
+  const noun = count === 1 ? "line" : "lines";
+  setStatus(`${count} decision ${noun} highlighted.`);
 }
 
 function cloneTree(node) {
@@ -443,7 +474,7 @@ function loadSnapshotVersion() {
   state.tree = cloneTree(snapshot.tree);
   state.selectedId = snapshot.selectedId;
   if (!findNodeAndParent(state.selectedId)) state.selectedId = state.tree.id;
-  state.highlightedPathTargetId = null;
+  state.highlightedPathTargetIds = new Set();
   state.inlineEdit = null;
   state.boxSelectedNodeIds = new Set();
   state.dragSelect.active = false;
@@ -686,7 +717,7 @@ function createNewTreeFromNodeId(nodeId, sourceLabel) {
   pushUndoSnapshot();
   state.tree = nextTree;
   state.selectedId = state.tree.id;
-  state.highlightedPathTargetId = null;
+  state.highlightedPathTargetIds = new Set();
   state.boxSelectedNodeIds = new Set();
   state.dragSelect.active = false;
   saveState();
@@ -1108,6 +1139,7 @@ async function loadSavedFromFolder(showStatus = true) {
     }
     state.tree = sanitizeTree(parsed);
     state.selectedId = state.tree.id;
+    state.highlightedPathTargetIds = new Set();
     saveState();
     render();
     syncEditor();
@@ -1374,12 +1406,10 @@ function drawNodes(node, g, highlightedNodeIds, boxSelectedNodeIds) {
 
   group.addEventListener("dblclick", (event) => {
     event.preventDefault();
-    if (event.altKey) {
-      state.selectedId = node.id;
-      state.highlightedPathTargetId = state.highlightedPathTargetId === node.id ? null : node.id;
-      syncEditor();
-      render();
-      setStatus(state.highlightedPathTargetId ? "Path highlight enabled." : "Path highlight cleared.");
+    const target = event.target;
+    const isRectTarget = Boolean(target && target.tagName && String(target.tagName).toLowerCase() === "rect");
+    if (event.altKey || isRectTarget) {
+      toggleHighlightedPath(node.id);
       return;
     }
     startInlineEdit(node.id);
@@ -1602,6 +1632,7 @@ function resetToSample() {
   pushUndoSnapshot();
   state.tree = sampleTree();
   state.selectedId = state.tree.id;
+  state.highlightedPathTargetIds = new Set();
   saveState();
   render();
   syncEditor();
@@ -1622,6 +1653,7 @@ function loadJsonFromFile(file) {
       pushUndoSnapshot();
       state.tree = sanitizeTree(parsed);
       state.selectedId = state.tree.id;
+      state.highlightedPathTargetIds = new Set();
       saveState();
       render();
       syncEditor();
@@ -1906,6 +1938,9 @@ function wireEvents() {
   el.zoomInBtn.addEventListener("click", () => setZoom(state.zoom + ZOOM_STEP));
   el.newTreeFromSelectionBtn.addEventListener("click", makeNewTreeFromBoxSelection);
   el.clearSelectionBtn.addEventListener("click", () => clearBoxSelection(true));
+  if (el.clearHighlightsBtn) {
+    el.clearHighlightsBtn.addEventListener("click", () => clearHighlightedPaths(true));
+  }
 
   document.getElementById("undoBtn").addEventListener("click", undoChange);
   document.getElementById("saveFileBtn").addEventListener("click", saveToFolderFile);

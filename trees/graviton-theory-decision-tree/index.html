@@ -31,6 +31,7 @@
         </select>
         <button id="newTreeFromSelectionBtn">New Tree from Selection</button>
         <button id="clearSelectionBtn">Clear Box</button>
+        <button id="clearHighlightsBtn">Clear Lines</button>
         <button id="focusBtn">Focus Selected</button>
         <button id="collapseToggleBtn">Collapse/Expand</button>
         <button id="saveSnapshotBtn">Save Snapshot</button>
@@ -44,8 +45,8 @@
         <button id="exportJpgBtn">Export JPG</button>
         <button id="printPdfBtn">Print / PDF</button>
       </div>
-      <div id="status" class="status">Drag the canvas to pan. Shift + drag still box-selects nodes.</div>
-      <div id="canvasContainer" class="canvas-container" title="Drag to pan. Shift + drag to box-select nodes.">
+      <div id="status" class="status">Drag the canvas to pan. Shift + drag box-selects nodes. Double-click a node border to mark a decision line.</div>
+      <div id="canvasContainer" class="canvas-container" title="Drag to pan. Shift + drag to box-select nodes. Double-click a node border to toggle a decision line.">
         <svg id="treeSvg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Decision tree visualization"></svg>
         <div class="zoom-dock" aria-label="Zoom controls">
           <button id="zoomInBtn" class="zoom-fab" aria-label="Zoom in" title="Zoom in">+</button>
@@ -109,12 +110,14 @@
         <li><strong>Zoom controls</strong> help with dense branches and presentation prep.</li>
         <li><strong>Drag the canvas</strong> to pan around while zoomed in.</li>
         <li><strong>Shift + drag</strong> or <strong>Shift + click</strong> to select nodes, then click <strong>New Tree from Selection</strong>.</li>
+        <li><strong>Double-click a node border</strong> to toggle that full root-to-node decision line.</li>
+        <li><strong>Multiple decision lines</strong> can stay highlighted at the same time; use <strong>Clear Lines</strong> to reset them.</li>
         <li><strong>Focus Selected</strong> shows only the selected branch to reduce clutter.</li>
         <li><strong>Collapse/Expand</strong> toggles selected node children visibility.</li>
         <li><strong>Save Snapshot / Load Snapshot</strong> stores named versions you can restore.</li>
         <li><strong>Right-click a node</strong> to open a new tree tab from that branch.</li>
-        <li><strong>Double-click a node</strong> to edit text directly in the node.</li>
-        <li><strong>Alt + double-click</strong> to highlight that full path in red.</li>
+        <li><strong>Double-click node text</strong> to edit text directly in the node.</li>
+        <li><strong>Alt + double-click</strong> still toggles a decision line if you prefer that shortcut.</li>
         <li><strong>Save to Folder</strong> writes/overwrites one JSON file on disk.</li>
         <li><strong>Add Fork</strong> creates a branch below the selected node.</li>
         <li><strong>Add Sibling</strong> adds an alternative at the same level.</li>

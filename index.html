@@ -5,156 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bipolar Graviton Condensate</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;700&display=swap');
 
     :root {
-      --bg: #f3ede1;
-      --paper: rgba(255, 250, 244, 0.88);
-      --paper-strong: #fffaf3;
-      --ink: #182331;
-      --muted: #5a6670;
-      --line: rgba(24, 35, 49, 0.12);
-      --shadow: rgba(20, 31, 44, 0.12);
-      --warm: #c96b25;
-      --teal: #1d7774;
-      --blue: #355f99;
-      --rose: #8a3f44;
+      --bg: #f4efe7;
+      --surface: #fffaf3;
+      --surface-soft: #f7f1e7;
+      --ink: #18212b;
+      --muted: #5d6974;
+      --line: #d9d2c6;
+      --accent: #1f6c6a;
+      --accent-2: #9e5524;
+      --shadow: rgba(24, 33, 43, 0.08);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      min-height: 100vh;
       color: var(--ink);
       font-family: 'Manrope', sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(201, 107, 37, 0.14), transparent 28%),
-        radial-gradient(circle at top right, rgba(29, 119, 116, 0.12), transparent 30%),
-        linear-gradient(rgba(24, 35, 49, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(24, 35, 49, 0.035) 1px, transparent 1px),
-        linear-gradient(180deg, #efe8da, #dbe7e2 68%, #f3ede1);
-      background-size: auto, auto, 28px 28px, 28px 28px, auto;
+        linear-gradient(rgba(24, 33, 43, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24, 33, 43, 0.03) 1px, transparent 1px),
+        linear-gradient(180deg, #efe6da, #e7efe9 55%, #f4efe7);
+      background-size: 24px 24px, 24px 24px, auto;
     }
 
-    .shell {
-      width: min(1180px, calc(100vw - 28px));
-      margin: 18px auto 40px;
-      padding: 18px;
-      border-radius: 28px;
+    .page {
+      width: min(1100px, calc(100vw - 24px));
+      margin: 16px auto 36px;
+    }
+
+    .hero,
+    .section {
+      background: rgba(255, 250, 243, 0.9);
       border: 1px solid var(--line);
-      background: rgba(255, 252, 247, 0.72);
-      box-shadow: 0 26px 80px var(--shadow);
-      backdrop-filter: blur(12px);
-    }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px 16px;
-      border-radius: 20px;
-      border: 1px solid var(--line);
-      background: rgba(255, 251, 245, 0.92);
-      box-shadow: 0 10px 28px rgba(24, 35, 49, 0.08);
-    }
-
-    .brand {
-      display: grid;
-      gap: 3px;
-    }
-
-    .brand strong {
-      font-size: 0.92rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .brand span {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    nav a,
-    .mini-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 9px 13px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.74);
-      color: var(--ink);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
-    }
-
-    nav a:hover,
-    .mini-link:hover,
-    .button:hover,
-    .text-link:hover {
-      transform: translateY(-1px);
-      border-color: rgba(29, 119, 116, 0.35);
+      border-radius: 22px;
+      box-shadow: 0 16px 40px var(--shadow);
     }
 
     .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(290px, 0.9fr);
-      gap: 18px;
-      margin-top: 18px;
-    }
-
-    .panel {
       padding: 22px;
-      border-radius: 24px;
-      border: 1px solid var(--line);
-      background: var(--paper);
+      display: grid;
+      gap: 18px;
     }
 
-    .kicker {
+    .tag {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 8px 12px;
+      border: 1px solid var(--line);
       border-radius: 999px;
-      border: 1px solid rgba(24, 35, 49, 0.1);
-      background: rgba(255, 255, 255, 0.55);
+      background: #fff;
       color: var(--muted);
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
     }
 
     .dot {
       width: 10px;
       height: 10px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--warm), var(--teal));
-      box-shadow: 0 0 0 0 rgba(29, 119, 116, 0.32);
-      animation: pulse 2.8s infinite;
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(29, 119, 116, 0.32); }
-      70% { box-shadow: 0 0 0 18px rgba(29, 119, 116, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(29, 119, 116, 0); }
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
     }
 
     h1,
@@ -166,507 +81,350 @@
     }
 
     h1 {
-      margin-top: 14px;
-      font-size: clamp(2.6rem, 5vw, 4.9rem);
-      line-height: 0.94;
+      font-size: clamp(2.2rem, 4.5vw, 4rem);
+      line-height: 0.95;
       max-width: 10ch;
     }
 
-    .lead {
-      margin: 16px 0 0;
-      max-width: 62ch;
-      color: var(--muted);
-      line-height: 1.68;
-      font-size: 1.02rem;
+    h2 {
+      font-size: clamp(1.5rem, 2.4vw, 2.2rem);
     }
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .button,
-    .text-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 44px;
-      padding: 0 16px;
-      border-radius: 14px;
-      text-decoration: none;
-      font-weight: 700;
-      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
-    }
-
-    .button {
-      border: 1px solid transparent;
-      background: linear-gradient(135deg, var(--teal), var(--blue));
-      color: #fff;
-      box-shadow: 0 10px 26px rgba(53, 95, 153, 0.22);
-    }
-
-    .text-link {
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.66);
-      color: var(--ink);
-    }
-
-    .stack {
-      display: grid;
-      gap: 12px;
-    }
-
-    .metric {
-      padding: 16px 18px;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: linear-gradient(135deg, rgba(255, 247, 238, 0.92), rgba(240, 248, 246, 0.88));
-    }
-
-    .metric strong {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--muted);
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-    }
-
-    .metric span {
-      font-size: 1.02rem;
-      line-height: 1.45;
-    }
-
-    .section {
-      margin-top: 18px;
-      padding: 18px;
-      border-radius: 24px;
-      border: 1px solid var(--line);
-      background: rgba(255, 251, 245, 0.68);
-    }
-
-    .section-head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 14px;
-    }
-
-    .section-head p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      line-height: 1.6;
-      max-width: 68ch;
-    }
-
-    .grid-3,
-    .grid-4,
-    .grid-2 {
-      display: grid;
-      gap: 14px;
-    }
-
-    .grid-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .grid-4 {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .grid-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .card {
-      display: grid;
-      gap: 12px;
-      min-height: 210px;
-      padding: 18px;
-      border-radius: 22px;
-      border: 1px solid var(--line);
-      background: var(--paper-strong);
-      box-shadow: 0 14px 34px rgba(24, 35, 49, 0.06);
-    }
-
-    .card p,
-    .card li,
-    .note {
+    p {
       margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
-      font-size: 0.95rem;
-    }
-
-    .step-number {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--warm), var(--rose));
-      color: #fff;
-      font-weight: 800;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      border: 1px solid rgba(24, 35, 49, 0.08);
-    }
-
-    .chip.current { background: rgba(29, 119, 116, 0.12); color: var(--teal); }
-    .chip.outline { background: rgba(201, 107, 37, 0.12); color: var(--warm); }
-    .chip.speculative { background: rgba(138, 63, 68, 0.12); color: var(--rose); }
-    .chip.model { background: rgba(53, 95, 153, 0.12); color: var(--blue); }
-
-    .card-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: auto;
-    }
-
-    .note-band {
-      margin-bottom: 14px;
-      padding: 14px 16px;
-      border-radius: 18px;
-      border: 1px solid rgba(201, 107, 37, 0.18);
-      background: linear-gradient(135deg, rgba(255, 245, 232, 0.92), rgba(247, 252, 251, 0.9));
-    }
-
-    .footer-note {
-      margin-top: 18px;
-      padding: 16px 18px;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: rgba(246, 251, 251, 0.72);
       color: var(--muted);
       line-height: 1.65;
     }
 
+    .hero-copy {
+      max-width: 70ch;
+    }
+
+    .quick-grid,
+    .card-grid,
+    .small-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .quick-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .small-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .quick-card,
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .quick-card {
+      background: linear-gradient(180deg, #fffdf8, #f6efe4);
+    }
+
+    .section {
+      margin-top: 16px;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    a.button,
+    a.link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 120ms ease, border-color 120ms ease;
+    }
+
+    a.button {
+      background: linear-gradient(135deg, var(--accent), #355f99);
+      color: #fff;
+      border: 1px solid transparent;
+    }
+
+    a.link {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    a.button:hover,
+    a.link:hover {
+      transform: translateY(-1px);
+      border-color: rgba(31, 108, 106, 0.35);
+    }
+
+    .kicker {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .meta {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .note {
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+    }
+
     code {
-      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
-      font-size: 0.82em;
-      padding: 2px 7px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84em;
+      padding: 2px 6px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(24, 35, 49, 0.08);
+      background: #fff;
+      border: 1px solid var(--line);
     }
 
-    @media (max-width: 1080px) {
-      .hero,
-      .grid-4,
-      .grid-3,
-      .grid-2 {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .shell {
-        width: min(100vw - 16px, 1180px);
-        margin: 8px auto 24px;
-        padding: 10px;
-        border-radius: 18px;
-      }
-
-      .topbar,
-      .hero,
-      .grid-4,
-      .grid-3,
-      .grid-2,
-      .section-head {
+    @media (max-width: 920px) {
+      .quick-grid,
+      .card-grid,
+      .small-grid {
         grid-template-columns: 1fr;
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .topbar {
-        position: static;
-      }
-
-      nav {
-        width: 100%;
-      }
-
-      nav a,
-      .mini-link,
-      .button,
-      .text-link {
-        width: 100%;
       }
     }
   </style>
 </head>
 <body>
-  <main class="shell">
-    <header class="topbar">
-      <div class="brand">
-        <strong>Bipolar Graviton Condensate</strong>
-        <span>Read the papers, choose a branch, then inspect the models.</span>
-      </div>
-      <nav aria-label="Sections">
-        <a href="#start">Start Here</a>
-        <a href="#papers">Papers</a>
-        <a href="#trees">Decision Maps</a>
-        <a href="#models">Models</a>
-        <a href="#visuals">Visuals</a>
-      </nav>
-    </header>
-
-    <section class="hero" id="start">
-      <div class="panel">
-        <div class="kicker"><span class="dot"></span> Research Site Directory</div>
+  <main class="page">
+    <section class="hero">
+      <div class="tag"><span class="dot"></span> Paper First Index</div>
+      <div class="hero-copy">
         <h1>Bipolar Graviton Condensate</h1>
-        <p class="lead">
-          This front page is organized around the actual workflow: read the current manuscript,
-          open the branch-paper drafts, use the decision trees to choose a route, then inspect the
-          toy models and visual sketches. The branch drafts below are now available as PDFs so they
-          can live on the site alongside the main paper.
+        <p>
+          This page is now a plain directory. The main paper and Paper 1 draft come first,
+          the branch papers come second, then the decision trees, models, and visuals.
+          No hidden structure, no showcase layout.
         </p>
-        <div class="actions">
-          <a class="button" href="paper/Graviton_Paper.pdf">Read Current Manuscript</a>
-          <a class="text-link" href="#draft-shelf">Open Draft Shelf</a>
-          <a class="text-link" href="trees/graviton-paper-layout-tree/index.html">Open Paper Route Tree</a>
-        </div>
       </div>
-
-      <aside class="stack">
-        <div class="metric">
-          <strong>Current Paper</strong>
-          <span>1 manuscript PDF in repo, plus source in <code>paper/main.tex</code>.</span>
-        </div>
-        <div class="metric">
-          <strong>Branch Drafts</strong>
-          <span>1 working draft PDF for Paper 1, plus 2 outline PDFs for the later branch papers.</span>
-        </div>
-        <div class="metric">
-          <strong>Interactive Material</strong>
-          <span>2 decision trees, 3 model pages, and 2 visual sketches with export tools.</span>
-        </div>
-      </aside>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div>
-          <h2>Start Here</h2>
-          <p>If you just want the shortest path through the site, use these three steps.</p>
-        </div>
-      </div>
-      <div class="grid-3">
-        <article class="card">
-          <div class="step-number">1</div>
-          <h3>Read The Baseline Paper</h3>
-          <p>Open the current manuscript first. That gives you the live baseline before splitting into branch papers.</p>
-          <div class="card-actions">
+      <div class="quick-grid">
+        <article class="quick-card">
+          <div class="kicker">Read First</div>
+          <h3>Main Manuscript</h3>
+          <p>Current baseline paper in PDF form.</p>
+          <div class="actions">
             <a class="button" href="paper/Graviton_Paper.pdf">Open PDF</a>
-            <a class="text-link" href="paper/main.tex">Open TeX</a>
+            <a class="link" href="paper/main.tex">Open TeX</a>
           </div>
         </article>
-
-        <article class="card">
-          <div class="step-number">2</div>
-          <h3>Pick A Paper Route</h3>
-          <p>Use the paper-layout tree if you want a single thinking path, or the broader theory tree if you want all branches visible.</p>
-          <div class="card-actions">
-            <a class="button" href="trees/graviton-paper-layout-tree/index.html">Paper Layout Tree</a>
-            <a class="text-link" href="trees/graviton-theory-decision-tree/index.html">Theory Tree</a>
+        <article class="quick-card">
+          <div class="kicker">Current Draft</div>
+          <h3>Paper 1</h3>
+          <p>Conservative massless-route draft.</p>
+          <div class="actions">
+            <a class="button" href="paper/Paper_1_Conservative_Draft.pdf">Open PDF</a>
+            <a class="link" href="paper/Paper_1_Conservative_Draft.tex">Open TeX</a>
           </div>
         </article>
-
-        <article class="card">
-          <div class="step-number">3</div>
-          <h3>Check The Models</h3>
-          <p>Use the model pages to inspect the potential, the massless branch, and the core-shell interpretation after choosing a route.</p>
-          <div class="card-actions">
-            <a class="button" href="#models">Open Model Section</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="section" id="papers">
-      <div class="section-head">
-        <div>
-          <h2>Paper Shelf</h2>
-          <p>These are the manuscript files and branch-paper drafts available on the site.</p>
-        </div>
-        <a class="mini-link" href="paper/main.tex">Main TeX Source</a>
-      </div>
-
-      <div class="note-band" id="draft-shelf">
-        <p class="note">Before this update, the repo only had one manuscript PDF. Paper 1 now has a working draft PDF, while Papers 2 and 3 remain route-outline PDFs built from the branch maps.</p>
-      </div>
-
-      <div class="grid-4">
-        <article class="card">
-          <div class="chips">
-            <span class="chip current">Current Manuscript</span>
-          </div>
-          <h3>Main Paper</h3>
-          <p>The current compiled manuscript and the LaTeX source for the main Bipolar Graviton Condensate paper.</p>
-          <div class="card-actions">
-            <a class="button" href="paper/Graviton_Paper.pdf">PDF</a>
-            <a class="text-link" href="paper/main.tex">TeX</a>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="chips">
-            <span class="chip current">Working Draft</span>
-          </div>
-          <h3>Paper 1: Conservative Draft</h3>
-          <p>Massless baseline, effective-description framing, and a narrower first-paper claim set.</p>
-          <div class="card-actions">
-            <a class="button" href="paper/Paper_1_Conservative_Draft.pdf">PDF</a>
-            <a class="text-link" href="paper/Paper_1_Conservative_Draft.tex">TeX</a>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="chips">
-            <span class="chip outline">Outline Draft</span>
-          </div>
-          <h3>Paper 2: Transfer Field</h3>
-          <p>The conversion-mechanism branch: trigger conditions, transfer field, and conservation-law accounting.</p>
-          <div class="card-actions">
-            <a class="button" href="paper/Paper_2_Transfer_Field_Outline.pdf">PDF</a>
-            <a class="text-link" href="paper/Paper_2_Transfer_Field_Outline.tex">TeX</a>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="chips">
-            <span class="chip speculative">Speculative Route</span>
-          </div>
-          <h3>Paper 3: Extended Constituents</h3>
-          <p>The massive or extended-constituent branch, including the core-shell support idea and its derivation burden.</p>
-          <div class="card-actions">
-            <a class="button" href="paper/Paper_3_Extended_Constituent_Outline.pdf">PDF</a>
-            <a class="text-link" href="paper/Paper_3_Extended_Constituent_Outline.tex">TeX</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="section" id="trees">
-      <div class="section-head">
-        <div>
-          <h2>Decision Maps</h2>
-          <p>Use these to choose a paper branch. Both trees support drag-to-pan, zoom, export, and multi-line route highlighting.</p>
-        </div>
-      </div>
-      <div class="grid-2">
-        <article class="card">
-          <div class="chips">
-            <span class="chip model">Broad Branch Map</span>
-          </div>
-          <h3>Graviton Theory Branches</h3>
-          <p>Shows the wider split: massless vs massive or extended, plus conventional framing vs transfer-field framing.</p>
-          <div class="card-actions">
-            <a class="button" href="trees/graviton-theory-decision-tree/index.html">Open Tree</a>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="chips">
-            <span class="chip model">Paper Route Map</span>
-          </div>
-          <h3>Paper Layout Routes</h3>
-          <p>A single-trunk map for the actual writing order: conservative paper first, hybrid route second, or full option-two branch.</p>
-          <div class="card-actions">
+        <article class="quick-card">
+          <div class="kicker">Choose Route</div>
+          <h3>Paper Tree</h3>
+          <p>Use this to decide which paper branch to develop next.</p>
+          <div class="actions">
             <a class="button" href="trees/graviton-paper-layout-tree/index.html">Open Tree</a>
           </div>
         </article>
       </div>
     </section>
 
-    <section class="section" id="models">
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Papers</h2>
+          <p>Direct links to the current manuscript and the branch-paper drafts.</p>
+        </div>
+      </div>
+      <div class="card-grid">
+        <article class="card">
+          <div class="kicker">Main Paper</div>
+          <h3>Current Manuscript</h3>
+          <p>The current project paper already in the repo.</p>
+          <div class="actions">
+            <a class="button" href="paper/Graviton_Paper.pdf">PDF</a>
+            <a class="link" href="paper/main.tex">TeX</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="kicker">Paper 1</div>
+          <h3>Conservative Draft</h3>
+          <p>Massless baseline, effective-description framing, narrow first-paper scope.</p>
+          <div class="actions">
+            <a class="button" href="paper/Paper_1_Conservative_Draft.pdf">PDF</a>
+            <a class="link" href="paper/Paper_1_Conservative_Draft.tex">TeX</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="kicker">Paper 1 Outline</div>
+          <h3>Original Route Outline</h3>
+          <p>The earlier outline preserved separately from the new Paper 1 draft.</p>
+          <div class="actions">
+            <a class="button" href="paper/Paper_1_Conservative_Outline.pdf">PDF</a>
+            <a class="link" href="paper/Paper_1_Conservative_Outline.tex">TeX</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="kicker">Paper 2 Outline</div>
+          <h3>Transfer Field Route</h3>
+          <p>Outline draft for the conversion-mechanism paper.</p>
+          <div class="actions">
+            <a class="button" href="paper/Paper_2_Transfer_Field_Outline.pdf">PDF</a>
+            <a class="link" href="paper/Paper_2_Transfer_Field_Outline.tex">TeX</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="kicker">Paper 3 Outline</div>
+          <h3>Extended Constituent Route</h3>
+          <p>Outline draft for the massive or core-shell branch.</p>
+          <div class="actions">
+            <a class="button" href="paper/Paper_3_Extended_Constituent_Outline.pdf">PDF</a>
+            <a class="link" href="paper/Paper_3_Extended_Constituent_Outline.tex">TeX</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Decision Trees</h2>
+          <p>Use these for branch selection and paper planning.</p>
+        </div>
+      </div>
+      <div class="small-grid">
+        <article class="card">
+          <div class="kicker">Paper Layout</div>
+          <h3>Single Trunk Route Tree</h3>
+          <p>One main thinking line for paper sequence and branch order.</p>
+          <div class="actions">
+            <a class="button" href="trees/graviton-paper-layout-tree/index.html">Open</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="kicker">Theory Branches</div>
+          <h3>Full Branch Tree</h3>
+          <p>Broader map for massless vs extended and conventional vs transfer-field routes.</p>
+          <div class="actions">
+            <a class="button" href="trees/graviton-theory-decision-tree/index.html">Open</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="section-head">
         <div>
           <h2>Models</h2>
-          <p>These are the interactive physics pages. Start with the effective potential, then compare the massless and core-shell interpretations.</p>
+          <p>Interactive pages tied to the current theory sketches.</p>
         </div>
       </div>
-      <div class="grid-3">
+      <div class="card-grid">
         <article class="card">
-          <div class="chips"><span class="chip model">Toy Model</span></div>
+          <div class="kicker">Potential</div>
           <h3>Potential And Velocity</h3>
-          <p>Effective potential, stable-radius finder, and Schwarzschild-vs-bipolar fringe velocity comparison.</p>
-          <div class="card-actions">
-            <a class="button" href="models/bipolar_graviton_condensate.html">Open Model</a>
+          <p>Effective potential, stable radius, and velocity comparison page.</p>
+          <div class="actions">
+            <a class="button" href="models/bipolar_graviton_condensate.html">Open</a>
           </div>
         </article>
-
         <article class="card">
-          <div class="chips"><span class="chip model">Massless Branch</span></div>
+          <div class="kicker">Massless</div>
           <h3>Massless Sketch</h3>
-          <p>Original massless picture with the support-term toggle so you can compare <code>A = 0</code> against a stabilized case.</p>
-          <div class="card-actions">
-            <a class="button" href="models/bipolar_graviton_massless_canvas.html">Open Model</a>
+          <p>Original branch with support-term toggle.</p>
+          <div class="actions">
+            <a class="button" href="models/bipolar_graviton_massless_canvas.html">Open</a>
           </div>
         </article>
-
         <article class="card">
-          <div class="chips"><span class="chip model">Extended Branch</span></div>
+          <div class="kicker">Core Shell</div>
           <h3>Core-Shell Sketch</h3>
-          <p>Extended-constituent interpretation showing the shell-overlap support idea visually.</p>
-          <div class="card-actions">
-            <a class="button" href="models/bipolar_graviton_core_shell_canvas.html">Open Model</a>
+          <p>Extended-constituent interpretation page.</p>
+          <div class="actions">
+            <a class="button" href="models/bipolar_graviton_core_shell_canvas.html">Open</a>
           </div>
         </article>
       </div>
     </section>
 
-    <section class="section" id="visuals">
+    <section class="section">
       <div class="section-head">
         <div>
-          <h2>Visual Sketches</h2>
-          <p>Large scene-based pages for conceptual presentation and exports.</p>
+          <h2>Visuals</h2>
+          <p>Presentation-style sketches and scenes.</p>
         </div>
       </div>
-      <div class="grid-2">
+      <div class="small-grid">
         <article class="card">
-          <div class="chips"><span class="chip model">Canvas Scene</span></div>
+          <div class="kicker">Scene</div>
           <h3>Collapse Timeline</h3>
-          <p>Star evolution and implosion concept leading into a graviton-cloud remainder.</p>
-          <div class="card-actions">
-            <a class="button" href="visuals/theory_illustration.html">Open Visual</a>
+          <p>Star to compact-core concept illustration.</p>
+          <div class="actions">
+            <a class="button" href="visuals/theory_illustration.html">Open</a>
           </div>
         </article>
-
         <article class="card">
-          <div class="chips"><span class="chip model">Canvas Scene</span></div>
+          <div class="kicker">Scene</div>
           <h3>Spacetime Grid</h3>
-          <p>Interactive curvature sketch with manual mass, tilt, zoom, and sequence controls.</p>
-          <div class="card-actions">
-            <a class="button" href="visuals/spacetime_grid.html">Open Visual</a>
+          <p>Interactive curvature sketch.</p>
+          <div class="actions">
+            <a class="button" href="visuals/spacetime_grid.html">Open</a>
           </div>
         </article>
       </div>
     </section>
 
-    <section class="footer-note">
-      The site now exposes the manuscript shelf directly instead of burying it in the directory layout. If you add later drafts, the cleanest pattern is to drop both the <code>.tex</code> and compiled <code>.pdf</code> into <code>paper/</code> and add one more card in the Paper Shelf section.
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>File Notes</h2>
+          <p>Where the paper files live inside the repo.</p>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          Manuscript files are in <code>paper/</code>. Interactive pages are in <code>models/</code>,
+          <code>trees/</code>, and <code>visuals/</code>. This index is meant to be a direct file directory,
+          not a showcase page.
+        </p>
+      </div>
     </section>
   </main>
 </body>

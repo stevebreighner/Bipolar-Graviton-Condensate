@@ -132,6 +132,20 @@
       filter: brightness(1.08);
     }
 
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .action-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
     @media (max-width: 700px) {
       .panel {
         top: auto;
@@ -146,6 +160,11 @@
   <aside class="panel">
     <h1>Spacetime Grid (Concept)</h1>
     <p>Conceptual visualization: a mass at center bends a spacetime-like grid. Increase mass to deepen curvature.</p>
+
+    <div class="action-row">
+      <a class="action-btn action-link" href="../index.html">Site Home</a>
+      <button id="captureImage" class="action-btn" type="button">Capture PNG</button>
+    </div>
 
     <div class="row">
       <div class="label">Mass / Curvature <span class="value" id="depthVal">0.72</span></div>
@@ -213,6 +232,7 @@
     const depthInput = document.getElementById('depth');
     const starSizeInput = document.getElementById('starSize');
     const launchSequenceBtn = document.getElementById('launchSequence');
+    const captureImageBtn = document.getElementById('captureImage');
     const sigmaInput = document.getElementById('sigma');
     const densityInput = document.getElementById('density');
     const tiltInput = document.getElementById('tilt');
@@ -632,6 +652,13 @@
 
     dilationInput.addEventListener('change', () => {
       state.showDilation = dilationInput.checked;
+    });
+
+    captureImageBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'spacetime_grid.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     });
 
     window.addEventListener('resize', resize);

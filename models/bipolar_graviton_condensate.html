@@ -7,9 +7,26 @@
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     body { font-family: system-ui, sans-serif; margin: 24px; max-width: 980px; }
+    .utility { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
     .controls { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
     label { display: flex; align-items: center; gap: 6px; }
     input { width: 90px; }
+    button,
+    .nav-link {
+      border: 1px solid #c7d2df;
+      background: #ffffff;
+      color: #0f1f2f;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font: inherit;
+      cursor: pointer;
+    }
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
     #plot { width: 100%; height: 520px; }
     #velocityPlot { width: 100%; height: 470px; margin-top: 16px; }
     #result { margin-top: 10px; font-weight: 600; }
@@ -35,6 +52,11 @@
 </head>
 <body>
   <h2>Bipolar Graviton Condensate Stability (Normalized Units)</h2>
+
+  <div class="utility">
+    <a class="nav-link" href="../index.html">Site Home</a>
+    <button id="captureImage" type="button">Capture PNG</button>
+  </div>
 
   <div class="controls">
     <label>A (repulsion): <input id="A" type="number" step="0.1" value="1.0" min="0.001"></label>
@@ -90,6 +112,7 @@
   <script>
     const G = 1.0;
     const M = 1.0;
+    const captureImageBtn = document.getElementById("captureImage");
 
     function V(r, A, B) {
       return A / (r ** 12) - B / (r ** 3) - (G * M) / r;
@@ -163,6 +186,59 @@
       const sorted = [...arr].sort((a, b) => a - b);
       const idx = Math.max(0, Math.min(sorted.length - 1, Math.floor(p * (sorted.length - 1))));
       return sorted[idx];
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = src;
+      });
+    }
+
+    async function captureCurrentView() {
+      const plotImageUrl = await Plotly.toImage(document.getElementById("plot"), {
+        format: "png",
+        width: 1400,
+        height: 820
+      });
+      const velocityImageUrl = await Plotly.toImage(document.getElementById("velocityPlot"), {
+        format: "png",
+        width: 1400,
+        height: 760
+      });
+
+      const [plotImage, velocityImage] = await Promise.all([
+        loadImage(plotImageUrl),
+        loadImage(velocityImageUrl)
+      ]);
+
+      const exportCanvas = document.createElement("canvas");
+      const exportCtx = exportCanvas.getContext("2d");
+      exportCanvas.width = 1400;
+      exportCanvas.height = 1750;
+
+      exportCtx.fillStyle = "#ffffff";
+      exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+      exportCtx.fillStyle = "#102132";
+      exportCtx.font = "700 34px system-ui, sans-serif";
+      exportCtx.fillText("Bipolar Graviton Condensate", 56, 58);
+      exportCtx.font = "24px system-ui, sans-serif";
+      exportCtx.fillText(
+        `A = ${document.getElementById("A").value}   B = ${document.getElementById("B").value}`,
+        56,
+        96
+      );
+      exportCtx.font = "600 22px system-ui, sans-serif";
+      exportCtx.fillText(document.getElementById("result").textContent || "No result text", 56, 132);
+      exportCtx.drawImage(plotImage, 0, 160, 1400, 820);
+      exportCtx.drawImage(velocityImage, 0, 970, 1400, 760);
+
+      const link = document.createElement("a");
+      link.download = "bipolar_graviton_condensate.png";
+      link.href = exportCanvas.toDataURL("image/png");
+      link.click();
     }
 
     function run() {
@@ -301,6 +377,12 @@
     }
 
     document.getElementById("runBtn").addEventListener("click", run);
+    captureImageBtn.addEventListener("click", () => {
+      captureCurrentView().catch((error) => {
+        console.error(error);
+        window.alert("Capture failed. Try simulating once before exporting.");
+      });
+    });
     run();
   </script>
 </body>

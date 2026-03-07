@@ -63,6 +63,13 @@
       font-size: 1.05rem;
     }
 
+    .utility {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
     .toolbar {
       display: grid;
       grid-template-columns: 1.6fr auto auto auto auto;
@@ -73,7 +80,8 @@
 
     .panel,
     .chip,
-    .toggle {
+    .toggle,
+    .nav-link {
       padding: 12px 14px;
       border-radius: 16px;
       border: 1px solid rgba(18, 32, 46, 0.1);
@@ -98,13 +106,22 @@
     }
 
     .chip,
-    .toggle {
+    .toggle,
+    .nav-link {
       font: inherit;
       cursor: pointer;
     }
 
     .chip:hover {
       border-color: rgba(20, 130, 135, 0.4);
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--ink);
     }
 
     .toggle {
@@ -216,6 +233,11 @@
       and compare the difference immediately.
     </p>
 
+    <section class="utility" aria-label="Page tools">
+      <a class="nav-link" href="../index.html">Site Home</a>
+      <button id="captureImage" class="chip" type="button">Capture PNG</button>
+    </section>
+
     <section class="toolbar" aria-label="Controls">
       <div class="panel">
         <div class="slider-row">
@@ -282,6 +304,7 @@
     const rValue = document.getElementById("rValue");
     const aToggle = document.getElementById("aToggle");
     const autoDrift = document.getElementById("autoDrift");
+    const captureImageBtn = document.getElementById("captureImage");
     const regime = document.getElementById("regime");
     const regimeNote = document.getElementById("regimeNote");
     const potentialValue = document.getElementById("potentialValue");
@@ -658,6 +681,13 @@
     });
 
     aToggle.addEventListener("change", render);
+
+    captureImageBtn.addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.download = "bipolar_graviton_massless_canvas.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
 
     window.addEventListener("resize", () => {
       resizeCanvas();

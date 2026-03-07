@@ -223,6 +223,15 @@
       line-height: 1.65;
     }
 
+    code {
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 0.82em;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(23, 34, 48, 0.08);
+    }
+
     @media (max-width: 980px) {
       .hero,
       .grid {
@@ -238,85 +247,97 @@
         <div class="tag"><span class="pulse"></span> Concept, Paper, and Visual Scaffolds</div>
         <h1>Bipolar Graviton Condensate</h1>
         <p class="lead">
-          This repo now has a minimal GitHub Pages-style landing page for the paper artifacts and the HTML
-          visualizations. The current work is split between the paper itself, conceptual spacetime sketches,
-          and toy-model canvases that show the difference between an unstabilized massless picture and a model
-          with an added short-distance support term.
+          This repo is now organized as a small static-site directory: <code>paper/</code> for the manuscript
+          and source, <code>visuals/</code> for the large conceptual scenes, and <code>models/</code> for the
+          toy-model experiments. Every page below is linked directly from this index so the whole repo can be
+          dropped onto a site or served by GitHub Pages without extra routing.
         </p>
       </div>
       <div class="summary">
         <div class="summary-card">
-          <strong>Paper Scope</strong>
-          <span>Effective-model framing first, stronger microscopic claims later.</span>
+          <strong>Paper Directory</strong>
+          <span>LaTeX source, current PDF, and citation file grouped together for direct hosting.</span>
         </div>
         <div class="summary-card">
-          <strong>Main Split</strong>
-          <span>Original massless attraction-only picture versus support-enabled finite-radius picture.</span>
+          <strong>Visual Directory</strong>
+          <span>Large canvas scenes for collapse and spacetime concepts, each with image capture enabled.</span>
         </div>
         <div class="summary-card">
-          <strong>Best Use</strong>
-          <span>Host the repo with GitHub Pages and use these pages as visual companions to the paper.</span>
+          <strong>Model Directory</strong>
+          <span>Interactive toy models for the potential, massless branch, and core-shell branch.</span>
         </div>
       </div>
     </section>
 
-    <h2 class="section-title">Artifacts</h2>
+    <h2 class="section-title">Paper</h2>
     <section class="grid">
-      <a class="card" href="main.tex">
+      <a class="card" href="paper/main.tex" download>
         <div class="kicker">Source</div>
-        <h3>Paper Source</h3>
-        <p>The LaTeX manuscript driving the current paper draft.</p>
-        <div class="meta"><span>`main.tex`</span><span class="swatch"></span></div>
+        <h3>LaTeX Manuscript</h3>
+        <p>The main paper source file, ready to view or download directly from the site.</p>
+        <div class="meta"><span><code>paper/main.tex</code></span><span class="swatch"></span></div>
       </a>
 
-      <a class="card" href="Graviton_Paper.pdf">
+      <a class="card" href="paper/Graviton_Paper.pdf">
         <div class="kicker">PDF</div>
         <h3>Current Paper PDF</h3>
         <p>The compiled paper already stored in the repo.</p>
-        <div class="meta"><span>`Graviton_Paper.pdf`</span><span class="swatch"></span></div>
+        <div class="meta"><span><code>paper/Graviton_Paper.pdf</code></span><span class="swatch"></span></div>
       </a>
 
-      <a class="card" href="theory_illustration.html">
-        <div class="kicker">Visualization</div>
+      <a class="card" href="paper/CITATION.bib" download>
+        <div class="kicker">Citation</div>
+        <h3>BibTeX Entry</h3>
+        <p>The citation file packaged with the paper directory.</p>
+        <div class="meta"><span><code>paper/CITATION.bib</code></span><span class="swatch"></span></div>
+      </a>
+    </section>
+
+    <h2 class="section-title">Visuals</h2>
+    <section class="grid">
+      <a class="card" href="visuals/theory_illustration.html">
+        <div class="kicker">Canvas Scene</div>
         <h3>Collapse Timeline</h3>
         <p>Star evolution and implosion concept leading into a graviton-cloud remainder.</p>
-        <div class="meta"><span>`theory_illustration.html`</span><span class="swatch"></span></div>
+        <div class="meta"><span><code>visuals/theory_illustration.html</code></span><span class="swatch"></span></div>
       </a>
 
-      <a class="card" href="spacetime_grid.html">
-        <div class="kicker">Visualization</div>
+      <a class="card" href="visuals/spacetime_grid.html">
+        <div class="kicker">Canvas Scene</div>
         <h3>Spacetime Grid</h3>
         <p>Interactive curvature sketch with manual mass, tilt, zoom, and sequence controls.</p>
-        <div class="meta"><span>`spacetime_grid.html`</span><span class="swatch"></span></div>
+        <div class="meta"><span><code>visuals/spacetime_grid.html</code></span><span class="swatch"></span></div>
       </a>
+    </section>
 
-      <a class="card" href="bipolar_graviton_condensate.html">
+    <h2 class="section-title">Models</h2>
+    <section class="grid">
+      <a class="card" href="models/bipolar_graviton_condensate.html">
         <div class="kicker">Toy Model</div>
         <h3>Potential And Velocity</h3>
         <p>Effective potential, stable-radius finder, and Schwarzschild versus bipolar velocity comparison.</p>
-        <div class="meta"><span>`bipolar_graviton_condensate.html`</span><span class="swatch"></span></div>
+        <div class="meta"><span><code>models/bipolar_graviton_condensate.html</code></span><span class="swatch"></span></div>
       </a>
 
-      <a class="card" href="bipolar_graviton_massless_canvas.html">
+      <a class="card" href="models/bipolar_graviton_massless_canvas.html">
         <div class="kicker">Toy Model</div>
         <h3>Massless Sketch</h3>
         <p>Original attraction-only picture with a live <code>A</code> toggle to compare against a support term.</p>
-        <div class="meta"><span>`bipolar_graviton_massless_canvas.html`</span><span class="swatch"></span></div>
+        <div class="meta"><span><code>models/bipolar_graviton_massless_canvas.html</code></span><span class="swatch"></span></div>
       </a>
 
-      <a class="card" href="bipolar_graviton_core_shell_canvas.html">
+      <a class="card" href="models/bipolar_graviton_core_shell_canvas.html">
         <div class="kicker">Interpretation</div>
         <h3>Core-Shell Sketch</h3>
         <p>Extended-constituent version showing opposite inner faces and shell-compression support.</p>
-        <div class="meta"><span>`bipolar_graviton_core_shell_canvas.html`</span><span class="swatch"></span></div>
+        <div class="meta"><span><code>models/bipolar_graviton_core_shell_canvas.html</code></span><span class="swatch"></span></div>
       </a>
     </section>
 
     <section class="notes">
-      This landing page is just a scaffold. It does not resolve the paper's open questions about what physically
-      produces a graviton condensate or where short-distance support comes from. It does make the current branches
-      explicit: baseline massless attraction, support-enabled equilibrium, and a possible extended core-shell
-      interpretation for later work.
+      The paper source is linked directly so the site can host both the explanatory pages and the manuscript files.
+      The large canvas scenes and toy-model pages now live in their own directories, and the visualization pages
+      can export their current state as PNG images from within the page itself.
     </section>
   </main>
 </body>

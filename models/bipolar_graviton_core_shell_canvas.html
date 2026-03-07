@@ -62,6 +62,13 @@
       line-height: 1.55;
     }
 
+    .utility {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
     .toolbar {
       display: grid;
       grid-template-columns: 1.5fr auto auto auto auto;
@@ -72,7 +79,8 @@
 
     .slider-block,
     .chip,
-    .toggle {
+    .toggle,
+    .nav-link {
       border: 1px solid rgba(22, 33, 45, 0.1);
       border-radius: 16px;
       background: var(--panel);
@@ -100,13 +108,15 @@
     }
 
     button,
-    label.toggle {
+    label.toggle,
+    .nav-link {
       cursor: pointer;
       font: inherit;
     }
 
     .chip,
-    .toggle {
+    .toggle,
+    .nav-link {
       padding: 12px 14px;
     }
 
@@ -124,6 +134,14 @@
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--ink);
     }
 
     .stage {
@@ -224,6 +242,11 @@
       explanatory sketch, not a literal claim about measured graviton structure.
     </p>
 
+    <section class="utility" aria-label="Page tools">
+      <a class="nav-link" href="../index.html">Site Home</a>
+      <button id="captureImage" class="chip" type="button">Capture PNG</button>
+    </section>
+
     <section class="toolbar" aria-label="Controls">
       <div class="slider-block">
         <div class="slider-row">
@@ -279,6 +302,7 @@
     const ctx = canvas.getContext("2d");
     const rRange = document.getElementById("rRange");
     const rValue = document.getElementById("rValue");
+    const captureImageBtn = document.getElementById("captureImage");
     const regime = document.getElementById("regime");
     const regimeNote = document.getElementById("regimeNote");
     const potentialValue = document.getElementById("potentialValue");
@@ -640,6 +664,13 @@
         state.r = Number(button.dataset.r);
         rRange.value = state.r.toFixed(3);
       });
+    });
+
+    captureImageBtn.addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.download = "bipolar_graviton_core_shell_canvas.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
     });
 
     window.addEventListener("resize", () => {

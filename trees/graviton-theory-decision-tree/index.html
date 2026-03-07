@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Graviton Theory Decision Tree</title>
+  <script src="config.js"></script>
+  <script>
+    if (window.APP_CONFIG && window.APP_CONFIG.pageTitle) {
+      document.title = window.APP_CONFIG.pageTitle;
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 id="appTitle">Decision Tree</h1>
+    <p id="appSubtitle">Map your process and export it.</p>
+  </header>
+
+  <main class="layout">
+    <section class="canvas-wrap">
+      <div class="canvas-toolbar">
+        <a class="upload-label" href="../../index.html">Site Home</a>
+        <button id="openEditorBtn">Node Editor</button>
+        <button id="openHelpBtn">Help</button>
+        <label class="mode-label" for="layoutModeSelect">Width</label>
+        <select id="layoutModeSelect" class="mode-select">
+          <option value="standard">Standard</option>
+          <option value="book">Book</option>
+        </select>
+        <button id="newTreeFromSelectionBtn">New Tree from Selection</button>
+        <button id="clearSelectionBtn">Clear Box</button>
+        <button id="focusBtn">Focus Selected</button>
+        <button id="collapseToggleBtn">Collapse/Expand</button>
+        <button id="saveSnapshotBtn">Save Snapshot</button>
+        <button id="loadSnapshotBtn">Load Snapshot</button>
+        <button id="undoBtn">Undo</button>
+        <button id="fitBtn">Fit View</button>
+        <button id="downloadJsonBtn">Download JSON</button>
+        <label class="upload-label" for="uploadJsonInput">Load JSON</label>
+        <input id="uploadJsonInput" type="file" accept="application/json" />
+        <button id="exportSvgBtn">Export SVG</button>
+        <button id="exportJpgBtn">Export JPG</button>
+        <button id="printPdfBtn">Print / PDF</button>
+      </div>
+      <div id="status" class="status"></div>
+      <div id="canvasContainer" class="canvas-container">
+        <svg id="treeSvg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Decision tree visualization"></svg>
+        <div class="zoom-dock" aria-label="Zoom controls">
+          <button id="zoomInBtn" class="zoom-fab" aria-label="Zoom in" title="Zoom in">+</button>
+          <button id="zoomResetBtn" class="zoom-fab zoom-fab-lens" aria-label="Reset zoom" title="Reset zoom">
+            <span class="lens-icon" aria-hidden="true"></span>
+            <span id="zoomLabel" class="zoom-fab-text">100%</span>
+          </button>
+          <button id="zoomOutBtn" class="zoom-fab" aria-label="Zoom out" title="Zoom out">-</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="editorModal" class="modal" hidden>
+    <button class="modal-backdrop" data-close-modal="editor" aria-label="Close editor"></button>
+    <section id="editorCard" class="panel modal-card editor-card" role="dialog" aria-modal="true" aria-label="Node editor">
+      <div id="editorHead" class="modal-head editor-drag-handle">
+        <h2>Node Editor</h2>
+        <div class="modal-actions">
+          <button id="toggleEditorMinBtn" class="ghost" type="button">Minimize</button>
+          <button id="closeEditorBtn" class="ghost" type="button">Close</button>
+        </div>
+      </div>
+      <div id="editorBody">
+        <p class="small">Selected: <span id="selectedLabel">none</span></p>
+
+        <label for="nodeText">Step Text</label>
+        <textarea id="nodeText" rows="5" placeholder="Describe this step or decision..."></textarea>
+
+        <label for="nodeTag">Tag</label>
+        <select id="nodeTag">
+          <option value="decision">Decision</option>
+          <option value="action">Action</option>
+          <option value="warning">Warning</option>
+        </select>
+
+        <div class="button-grid">
+          <button id="addChildBtn">Add Fork (Child)</button>
+          <button id="addSiblingBtn">Add Sibling</button>
+          <button id="moveUpBtn">Move Up</button>
+          <button id="moveDownBtn">Move Down</button>
+          <button id="deleteAboveBtn" class="danger">Delete Above</button>
+          <button id="deleteBtn" class="danger">Delete Node</button>
+          <button id="resetBtn" class="ghost">Reset Sample Tree</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="helpModal" class="modal" hidden>
+    <button class="modal-backdrop" data-close-modal="help" aria-label="Close help"></button>
+    <section class="panel modal-card help-modal-card" role="dialog" aria-modal="true" aria-label="How to use">
+      <div class="modal-head">
+        <h2>How To Use</h2>
+        <button id="closeHelpBtn" class="ghost">Close</button>
+      </div>
+      <ul>
+        <li>Click a box to edit it.</li>
+        <li><strong>Undo</strong> reverses your last tree change.</li>
+        <li><strong>Width: Book</strong> uses a narrower layout for document insertion.</li>
+        <li><strong>Zoom controls</strong> help with dense branches and presentation prep.</li>
+        <li><strong>Shift + drag</strong> or <strong>Shift + click</strong> to select nodes, then click <strong>New Tree from Selection</strong>.</li>
+        <li><strong>Focus Selected</strong> shows only the selected branch to reduce clutter.</li>
+        <li><strong>Collapse/Expand</strong> toggles selected node children visibility.</li>
+        <li><strong>Save Snapshot / Load Snapshot</strong> stores named versions you can restore.</li>
+        <li><strong>Right-click a node</strong> to open a new tree tab from that branch.</li>
+        <li><strong>Double-click a node</strong> to edit text directly in the node.</li>
+        <li><strong>Alt + double-click</strong> to highlight that full path in red.</li>
+        <li><strong>Save to Folder</strong> writes/overwrites one JSON file on disk.</li>
+        <li><strong>Add Fork</strong> creates a branch below the selected node.</li>
+        <li><strong>Add Sibling</strong> adds an alternative at the same level.</li>
+        <li><strong>Delete Above</strong> removes selected node and ancestors, keeping lower branches.</li>
+        <li><strong>Download JSON</strong> to keep backups.</li>
+        <li><strong>Export JPG</strong> for quick insertion in docs.</li>
+        <li><strong>Print / PDF</strong> opens a clean printable version.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div id="devModal" class="modal" hidden>
+    <button class="modal-backdrop" data-close-modal="dev" aria-label="Close developer tools"></button>
+    <section class="panel modal-card dev-modal-card" role="dialog" aria-modal="true" aria-label="Developer tools">
+      <div class="modal-head">
+        <h2>Developer Tools</h2>
+        <button id="closeDevBtn" class="ghost">Close</button>
+      </div>
+      <p class="small">Backend and server save/load controls.</p>
+      <label class="mode-label mode-label-block" for="backendModeSelect">Backend</label>
+      <select id="backendModeSelect" class="mode-select mode-select-block">
+        <option value="node">Node</option>
+        <option value="php">PHP</option>
+      </select>
+      <div class="button-grid">
+        <button id="saveFileBtn">Save to Folder</button>
+        <button id="loadSavedBtn">Load Saved</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
